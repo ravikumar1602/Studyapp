@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Test</title>
+</head>
+<body>
+    <h1>Testing Icons</h1>
+    <div>
+        <h2>192x192 Icon:</h2>
+        <img src="/icons/icon-192x192.png" alt="192x192 Icon" style="border: 1px solid #ccc;">
+        <p>Path: /icons/icon-192x192.png</p>
+    </div>
+    <div>
+        <h2>512x512 Icon:</h2>
+        <img src="/icons/icon-512x512.png" alt="512x512 Icon" style="border: 1px solid #ccc;">
+        <p>Path: /icons/icon-512x512.png</p>
+    </div>
+    <script>
+        // Test if images loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.onload = () => console.log(`Loaded: ${img.src}`);
+                img.onerror = (e) => console.error(`Error loading: ${img.src}`, e);
+            });
+        });
+    </script>
+</body>
+</html>

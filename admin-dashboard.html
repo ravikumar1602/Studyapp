@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - StudyApp</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>StudyApp Admin</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#dashboard">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#users">
+                            <i class="fas fa-users"></i>
+                            <span>Users</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#courses">
+                            <i class="fas fa-book"></i>
+                            <span>Courses</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#content">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Content</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#analytics">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#settings">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation -->
+            <header class="top-nav">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="user-actions">
+                    <div class="notifications">
+                        <i class="far fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <img src="https://via.placeholder.com/40" alt="Admin">
+                        <span>Admin User</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content" id="dashboard-content">
+                <h1>Dashboard Overview</h1>
+                
+                <!-- Courses Section (initially hidden) -->
+                <div id="courses-section" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Manage Courses</h2>
+                        <button class="btn btn-primary" id="addCourseBtn">
+                            <i class="fas fa-plus me-2"></i>Add New Course
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="coursesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Course</th>
+                                            <th>Instructor</th>
+                                            <th>Duration</th>
+                                            <th>Price</th>
+                                            <th>Students</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="coursesTableBody">
+                                        <!-- Course rows will be dynamically added here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span id="totalCourses">0</span> courses
+                                </div>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item disabled" id="prevPage">
+                                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                        </li>
+                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item" id="nextPage">
+                                            <a class="page-link" href="#">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Overview (default view) -->
+                <div id="dashboard-overview">
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #e3f2fd;">
+                            <i class="fas fa-users" style="color: #1976d2;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Users</h3>
+                            <p class="count">1,245</p>
+                            <span class="trend up">
+                                <i class="fas fa-arrow-up"></i> 12.5%
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #e8f5e9;">
+                            <i class="fas fa-book" style="color: #388e3c;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Courses</h3>
+                            <p class="count">48</p>
+                            <span class="trend up">
+                                <i class="fas fa-arrow-up"></i> 8.3%
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fff3e0;">
+                            <i class="fas fa-video" style="color: #f57c00;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Active Sessions</h3>
+                            <p class="count">327</p>
+                            <span class="trend down">
+                                <i class="fas fa-arrow-down"></i> 3.2%
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #f3e5f5;">
+                            <i class="fas fa-dollar-sign" style="color: #8e24aa;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Revenue</h3>
+                            <p class="count">$12,489</p>
+                            <span class="trend up">
+                                <i class="fas fa-arrow-up"></i> 24.1%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity and Quick Stats -->
+                <div class="content-row">
+                    <!-- Recent Activity -->
+                    <div class="card recent-activity">
+                        <div class="card-header">
+                            <h3>Recent Activity</h3>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-avatar">
+                                    <img src="https://via.placeholder.com/40" alt="User">
+                                </div>
+                                <div class="activity-details">
+                                    <p><strong>John Doe</strong> enrolled in <strong>Web Development</strong> course</p>
+                                    <span class="time">10 minutes ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-avatar">
+                                    <img src="https://via.placeholder.com/40" alt="User">
+                                </div>
+                                <div class="activity-details">
+                                    <p><strong>Sarah Smith</strong> completed <strong>JavaScript Basics</strong></p>
+                                    <span class="time">2 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-avatar">
+                                    <img src="https://via.placeholder.com/40" alt="User">
+                                </div>
+                                <div class="activity-details">
+                                    <p><strong>Mike Johnson</strong> submitted an assignment</p>
+                                    <span class="time">5 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-avatar">
+                                    <img src="https://via.placeholder.com/40" alt="User">
+                                </div>
+                                <div class="activity-details">
+                                    <p><strong>Emily Davis</strong> asked a question in <strong>Python Course</strong></p>
+                                    <span class="time">1 day ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="card quick-stats">
+                        <div class="card-header">
+                            <h3>Quick Stats</h3>
+                        </div>
+                        <div class="stats-list">
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-circle" style="color: #4caf50;"></i>
+                                    <span>Active Users</span>
+                                </div>
+                                <span class="stat-value">856</span>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-circle" style="color: #2196f3;"></i>
+                                    <span>New Users (7d)</span>
+                                </div>
+                                <span class="stat-value">124</span>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-circle" style="color: #ff9800;"></i>
+                                    <span>Courses in Progress</span>
+                                </div>
+                                <span class="stat-value">342</span>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-circle" style="color: #9c27b0;"></i>
+                                    <span>Completed Courses</span>
+                                </div>
+                                <span class="stat-value">1,045</span>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-circle" style="color: #f44336;"></i>
+                                    <span>Pending Approvals</span>
+                                </div>
+                                <span class="stat-value">23</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Users Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Recent Users</h3>
+                        <a href="#users" class="view-all">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Joined</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <img src="https://via.placeholder.com/40" alt="User">
+                                            <span>Alex Johnson</span>
+                                        </div>
+                                    </td>
+                                    <td>alex@example.com</td>
+                                    <td>June 20, 2025</td>
+                                    <td><span class="status active">Active</span></td>
+                                    <td class="actions">
+                                        <button class="icon-btn" title="View"><i class="fas fa-eye"></i></button>
+                                        <button class="icon-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                        <button class="icon-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <img src="https://via.placeholder.com/40" alt="User">
+                                            <span>Maria Garcia</span>
+                                        </div>
+                                    </td>
+                                    <td>maria@example.com</td>
+                                    <td>June 19, 2025</td>
+                                    <td><span class="status active">Active</span></td>
+                                    <td class="actions">
+                                        <button class="icon-btn" title="View"><i class="fas fa-eye"></i></button>
+                                        <button class="icon-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                        <button class="icon-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <img src="https://via.placeholder.com/40" alt="User">
+                                            <span>David Kim</span>
+                                        </div>
+                                    </td>
+                                    <td>david@example.com</td>
+                                    <td>June 18, 2025</td>
+                                    <td><span class="status pending">Pending</span></td>
+                                    <td class="actions">
+                                        <button class="icon-btn" title="View"><i class="fas fa-eye"></i></button>
+                                        <button class="icon-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                        <button class="icon-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <img src="https://via.placeholder.com/40" alt="User">
+                                            <span>Sarah Wilson</span>
+                                        </div>
+                                    </td>
+                                    <td>sarah@example.com</td>
+                                    <td>June 17, 2025</td>
+                                    <td><span class="status active">Active</span></td>
+                                    <td class="actions">
+                                        <button class="icon-btn" title="View"><i class="fas fa-eye"></i></button>
+                                        <button class="icon-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                        <button class="icon-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <img src="https://via.placeholder.com/40" alt="User">
+                                            <span>Michael Brown</span>
+                                        </div>
+                                    </td>
+                                    <td>michael@example.com</td>
+                                    <td>June 16, 2025</td>
+                                    <td><span class="status inactive">Inactive</span></td>
+                                    <td class="actions">
+                                        <button class="icon-btn" title="View"><i class="fas fa-eye"></i></button>
+                                        <button class="icon-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                        <button class="icon-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Course Management Modal -->
+    <div class="modal fade" id="courseModal" tabindex="-1" aria-labelledby="courseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="courseModalLabel">Add New Course</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="courseForm">
+                        <input type="hidden" id="courseId">
+                        <div class="mb-3">
+                            <label for="courseName" class="form-label">Course Name</label>
+                            <input type="text" class="form-control" id="courseName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="courseDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="courseDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="courseInstructor" class="form-label">Instructor</label>
+                            <input type="text" class="form-control" id="courseInstructor" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="courseDuration" class="form-label">Duration (weeks)</label>
+                            <input type="number" class="form-control" id="courseDuration" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="coursePrice" class="form-label">Price (₹)</label>
+                            <input type="number" class="form-control" id="coursePrice" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="courseImage" class="form-label">Course Image URL</label>
+                            <input type="url" class="form-control" id="courseImage" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveCourseBtn">Save Course</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Subjects Modal -->
+    <div class="modal fade" id="subjectsModal" tabindex="-1" aria-labelledby="subjectsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="subjectsModalLabel">Manage Subjects</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 id="courseTitleForSubjects"></h6>
+                        <button class="btn btn-sm btn-primary" id="addSubjectBtn">
+                            <i class="fas fa-plus me-1"></i> Add Subject
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="subjectsTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Subject Name</th>
+                                    <th>Videos</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subjectsList">
+                                <!-- Subjects will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Subject Modal -->
+    <div class="modal fade" id="subjectModal" tabindex="-1" aria-labelledby="subjectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="subjectModalLabel">Add New Subject</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="subjectForm">
+                        <input type="hidden" id="subjectId">
+                        <div class="mb-3">
+                            <label for="subjectName" class="form-label">Subject Name</label>
+                            <input type="text" class="form-control" id="subjectName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subjectDescription" class="form-label">Description (Optional)</label>
+                            <textarea class="form-control" id="subjectDescription" rows="3"></textarea>
+                        </div>
+                        <div id="videosContainer">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label">Videos</label>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="addVideoBtn">
+                                    <i class="fas fa-plus"></i> Add Video
+                                </button>
+                            </div>
+                            <div id="videosList">
+                                <!-- Video items will be added here -->
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveSubjectBtn">Save Subject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Item Template (Hidden) -->
+    <template id="videoItemTemplate">
+        <div class="video-item card mb-2">
+            <div class="card-body p-2">
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control form-control-sm me-2 video-title" placeholder="Video Title" required>
+                    <input type="url" class="form-control form-control-sm me-2 video-url" placeholder="Video URL" required>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-video">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this course? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="admin-script.js"></script>
+</body>
+</html>
