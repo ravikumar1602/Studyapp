@@ -42,6 +42,9 @@ ul {
 .admin-container {
     display: flex;
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
 /* Sidebar */
@@ -103,6 +106,10 @@ ul {
     flex: 1;
     margin-left: var(--sidebar-width);
     padding: 1.5rem;
+    transition: var(--transition);
+    width: calc(100% - var(--sidebar-width));
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 /* Top Navigation */
@@ -115,6 +122,12 @@ ul {
     border-radius: var(--border-radius);
     margin-bottom: 1.5rem;
     box-shadow: var(--box-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 1rem 1.5rem;
+    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .search-bar {
@@ -179,6 +192,11 @@ ul {
 .dashboard-content {
     margin-top: 1.5rem;
     padding: 1.5rem;
+    background: #fff;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 2rem;
 }
 
 /* Course Management Styles */
@@ -466,11 +484,18 @@ dashboard-content h1 {
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     overflow: hidden;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: var(--border-radius);
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
 }
 
 .card-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #eee;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    padding: 1rem 1.25rem;
+    border-top-left-radius: var(--border-radius) !important;
+    border-top-right-radius: var(--border-radius) !important;
     display: flex;
     justify-content: space-between;
     align-items: center;

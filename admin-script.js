@@ -4,13 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPage = 1;
     const itemsPerPage = 10;
     let currentCourseId = null;
-    let currentSubjectId = null;
     let isEditMode = false;
-    let isSubjectEditMode = false;
-    
-    // Initialize modals
-    const subjectsModal = new bootstrap.Modal(document.getElementById('subjectsModal'));
-    const subjectModal = new bootstrap.Modal(document.getElementById('subjectModal'));
     
     // DOM Elements
     const coursesSection = document.getElementById('courses-section');
@@ -25,18 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevPageBtn = document.getElementById('prevPage');
     const nextPageBtn = document.getElementById('nextPage');
     const pageLinks = document.querySelectorAll('.page-link:not(#prevPage a):not(#nextPage a)');
-    
-    // Add action buttons event listeners
-    document.getElementById('addSubjectBtn')?.addEventListener('click', () => openSubjectModal());
-    document.getElementById('saveSubjectBtn')?.addEventListener('click', saveSubject);
-    document.getElementById('addVideoBtn')?.addEventListener('click', addVideoField);
-    
-    // Handle video list events using event delegation
-    document.getElementById('videosList')?.addEventListener('click', function(e) {
-        if (e.target.closest('.remove-video')) {
-            e.target.closest('.video-item').remove();
-        }
-    });
     
     // Navigation
     const navLinks = document.querySelectorAll('.sidebar-nav a');
@@ -105,190 +87,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         courseModal.show();
-    }
-    
-    // Manage Subjects
-    function openSubjectsModal(courseId) {
-        currentCourseId = courseId;
-        const course = courses.find(c => c.id === courseId);
-        if (!course) return;
-        
-        // Initialize subjects array if it doesn't exist
-        if (!course.subjects) {
-            course.subjects = [];
-            saveCourses();
-        }
-        
-        document.getElementById('courseTitleForSubjects').textContent = `Subjects for: ${course.name}`;
-        renderSubjectsList(course.subjects);
-        subjectsModal.show();
-    }
-    
-    function openSubjectModal(subjectId = null) {
-        isSubjectEditMode = subjectId !== null;
-        currentSubjectId = subjectId;
-        
-        const modalTitle = document.getElementById('subjectModalLabel');
-        const form = document.getElementById('subjectForm');
-        const videosList = document.getElementById('videosList');
-        
-        if (isSubjectEditMode) {
-            const course = courses.find(c => c.id === currentCourseId);
-            const subject = course.subjects.find(s => s.id === subjectId);
-            
-            if (subject) {
-                modalTitle.textContent = 'Edit Subject';
-                document.getElementById('subjectId').value = subject.id;
-                document.getElementById('subjectName').value = subject.name;
-                document.getElementById('subjectDescription').value = subject.description || '';
-                
-                // Clear existing video fields
-                videosList.innerHTML = '';
-                
-                // Add video fields
-                if (subject.videos && subject.videos.length > 0) {
-                    subject.videos.forEach(video => {
-                        addVideoField(video);
-                    });
-                } else {
-                    addVideoField(); // Add one empty video field
-                }
-            }
-        } else {
-            modalTitle.textContent = 'Add New Subject';
-            form.reset();
-            videosList.innerHTML = '';
-            addVideoField(); // Add one empty video field
-        }
-        
-        subjectModal.show();
-    }
-    
-    function addVideoField(video = { title: '', url: '' }) {
-        const template = document.getElementById('videoItemTemplate');
-        const clone = template.content.cloneNode(true);
-        
-        if (video.title) {
-            clone.querySelector('.video-title').value = video.title;
-        }
-        if (video.url) {
-            clone.querySelector('.video-url').value = video.url;
-        }
-        
-        document.getElementById('videosList').appendChild(clone);
-    }
-    
-    function saveSubject() {
-        const course = courses.find(c => c.id === currentCourseId);
-        if (!course) return;
-        
-        const subjectName = document.getElementById('subjectName').value.trim();
-        const subjectDescription = document.getElementById('subjectDescription').value.trim();
-        
-        if (!subjectName) {
-            alert('Please enter a subject name');
-            return;
-        }
-        
-        // Collect videos
-        const videoItems = Array.from(document.querySelectorAll('.video-item'));
-        const videos = [];
-        
-        for (const item of videoItems) {
-            const title = item.querySelector('.video-title').value.trim();
-            const url = item.querySelector('.video-url').value.trim();
-            
-            if (title && url) {
-                videos.push({ title, url });
-            }
-        }
-        
-        if (videos.length === 0) {
-            alert('Please add at least one video');
-            return;
-        }
-        
-        const subjectData = {
-            id: isSubjectEditMode ? currentSubjectId : Date.now().toString(),
-            name: subjectName,
-            description: subjectDescription,
-            videos: videos,
-            createdAt: isSubjectEditMode ? undefined : new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-        
-        if (!course.subjects) {
-            course.subjects = [];
-        }
-        
-        if (isSubjectEditMode) {
-            const index = course.subjects.findIndex(s => s.id === currentSubjectId);
-            if (index !== -1) {
-                course.subjects[index] = { ...course.subjects[index], ...subjectData };
-            }
-        } else {
-            course.subjects.push(subjectData);
-        }
-        
-        saveCourses();
-        renderSubjectsList(course.subjects);
-        subjectModal.hide();
-    }
-    
-    function renderSubjectsList(subjects) {
-        const tbody = document.getElementById('subjectsList');
-        if (!tbody) return;
-        
-        tbody.innerHTML = '';
-        
-        if (!subjects || subjects.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="text-center py-3 text-muted">
-                        No subjects found. Click "Add Subject" to get started.
-                    </td>
-                </tr>`;
-            return;
-        }
-        
-        subjects.forEach((subject, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${subject.name}</td>
-                <td>${subject.videos?.length || 0} videos</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-primary edit-subject" data-id="${subject.id}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-subject ms-1" data-id="${subject.id}">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>`;
-            tbody.appendChild(row);
-        });
-        
-        // Add event listeners to the new buttons
-        tbody.querySelectorAll('.edit-subject').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                openSubjectModal(btn.dataset.id);
-            });
-        });
-        
-        tbody.querySelectorAll('.delete-subject').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (confirm('Are you sure you want to delete this subject? This action cannot be undone.')) {
-                    const course = courses.find(c => c.id === currentCourseId);
-                    if (course && course.subjects) {
-                        course.subjects = course.subjects.filter(s => s.id !== btn.dataset.id);
-                        saveCourses();
-                        renderSubjectsList(course.subjects);
-                    }
-                }
-            });
-        });
     }
     
     // Save Course
@@ -458,32 +256,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize sample data if none exists
     if (courses.length === 0) {
-        // Initialize with sample subjects and videos for demo
-        const sampleSubjects = [
-            {
-                id: 'sub1',
-                name: 'Introduction to Course',
-                description: 'Get started with the basics of this course',
-                videos: [
-                    { title: 'Welcome to the Course', url: 'https://example.com/videos/welcome' },
-                    { title: 'Course Overview', url: 'https://example.com/videos/overview' }
-                ],
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            },
-            {
-                id: 'sub2',
-                name: 'Advanced Topics',
-                description: 'Dive deeper into advanced concepts',
-                videos: [
-                    { title: 'Advanced Concepts Part 1', url: 'https://example.com/videos/advanced1' },
-                    { title: 'Advanced Concepts Part 2', url: 'https://example.com/videos/advanced2' }
-                ],
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            }
-        ];
-        
         courses = [
             {
                 id: '1',
