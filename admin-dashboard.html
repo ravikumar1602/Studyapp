@@ -94,8 +94,8 @@
             <div class="dashboard-content" id="dashboard-content">
                 <h1>Dashboard Overview</h1>
                 
-                <!-- Videos Section (initially hidden) -->
-                <div id="videos-section" class="d-none">
+                <!-- Videos Section -->
+                <div id="videos-section" class="section-content d-none">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2>Manage Course Videos</h2>
                         <button class="btn btn-primary" id="addVideoBtn">
@@ -134,8 +134,8 @@
                     </div>
                 </div>
 
-                <!-- Users Section (initially hidden) -->
-                <div id="users-section" class="d-none">
+                <!-- Users Section -->
+                <div id="users-section" class="section-content d-none">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2>User Management</h2>
                     </div>
@@ -191,8 +191,8 @@
                     </div>
                 </div>
                 
-                <!-- Course Management Section -->
-                <div id="courses-section" class="d-none">
+                <!-- Courses Section -->
+                <div id="courses-section" class="section-content d-none">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2>Manage Courses</h2>
                         <button class="btn btn-primary" id="addCourseBtn">
@@ -203,21 +203,25 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-hover">
+                                <table class="table table-hover" id="coursesTable">
                                     <thead>
                                         <tr>
-                                            <th>Thumbnail</th>
-                                            <th>Title</th>
-                                            <th>Subject</th>
+                                            <th>#</th>
+                                            <th>Course</th>
                                             <th>Instructor</th>
+                                            <th>Duration</th>
                                             <th>Price</th>
+                                            <th>Students</th>
+                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="coursesTableBody">
-                                        <!-- Course rows will be added here dynamically -->
+                                        <!-- Course rows will be dynamically added here -->
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
                                 <div class="text-muted">
                                     Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span id="totalCourses">0</span> courses
                                 </div>
@@ -240,11 +244,10 @@
                 </div>
                 
                 <!-- Dashboard Overview (default view) -->
-                <div id="dashboard-overview">
-                
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
+                <div id="dashboard-overview" class="section-content">
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
                         <div class="stat-icon" style="background: #e3f2fd;">
                             <i class="fas fa-users" style="color: #1976d2;"></i>
                         </div>
@@ -297,7 +300,6 @@
                     </div>
                 </div>
 
-                <!-- Recent Activity and Quick Stats -->
                 <div class="content-row">
                     <!-- Recent Activity -->
                     <div class="card recent-activity">
@@ -492,7 +494,6 @@
                         </table>
                     </div>
                 </div>
-            </div>
         </main>
     </div>
 
@@ -580,22 +581,18 @@
         </div>
     </div>
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <!-- Firebase Config -->
-    <script src="js/firebase-config.js"></script>
+    <script src="firebase-config.js" type="module"></script>
     
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom JS -->
-    <script src="js/admin-script.js"></script>
-    
-    <!-- Course Management JS -->
-    <script src="js/course-manager.js"></script>
+    <script type="module" src="admin-script.js"></script>
     <script src="admin-users.js"></script>
     <script src="admin-videos.js"></script>
 </body>

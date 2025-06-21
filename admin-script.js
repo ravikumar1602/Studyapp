@@ -1,10 +1,16 @@
-document.addEventListener('DOMContentLoaded', function() {
+// Import Firebase database
+import { database } from './firebase-config.js';
+
+document.addEventListener('DOMContentLoaded', async function() {
     // Course Management Variables
-    let courses = JSON.parse(localStorage.getItem('courses')) || [];
+    let courses = [];
     let currentPage = 1;
     const itemsPerPage = 10;
     let currentCourseId = null;
     let isEditMode = false;
+    
+    // Reference to the courses in Firebase
+    const coursesRef = database.ref('courses');
     
     // DOM Elements
     const coursesSection = document.getElementById('courses-section');
@@ -36,13 +42,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show/Hide sections
     function showSection(sectionId) {
-        if (sectionId === 'courses') {
-            coursesSection.classList.remove('d-none');
-            dashboardOverview.classList.add('d-none');
-            renderCoursesTable();
+        // Hide all sections first
+        document.querySelectorAll('.section-content').forEach(section => {
+            section.classList.add('d-none');
+        });
+        
+        // Show the selected section
+        const targetSection = document.getElementById(`${sectionId}-section`);
+        if (targetSection) {
+            targetSection.classList.remove('d-none');
+        }
+        
+        // Special handling for dashboard
+        const dashboardOverview = document.getElementById('dashboard-overview');
+        if (sectionId === 'dashboard' || sectionId === '') {
+            dashboardOverview?.classList.remove('d-none');
         } else {
-            coursesSection.classList.add('d-none');
-            dashboardOverview.classList.remove('d-none');
+            dashboardOverview?.classList.add('d-none');
+        }
+        
+        // Load section-specific data
+        if (sectionId === 'courses') {
+            renderCoursesTable();
         }
     }
     
@@ -91,6 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Save Course
     function saveCourse() {
+        // Get form elements
+        const form = document.getElementById('courseForm');
         const name = document.getElementById('courseName').value.trim();
         const description = document.getElementById('courseDescription').value.trim();
         const instructor = document.getElementById('courseInstructor').value.trim();
@@ -98,8 +121,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const price = document.getElementById('coursePrice').value;
         const image = document.getElementById('courseImage').value.trim();
         
+        // Validate required fields
         if (!name || !description || !instructor || !duration || !price) {
-            alert('Please fill in all required fields');
+            showToast('Validation Error', 'Please fill in all required fields', 'error');
+            return;
+        }
+        
+        // Validate price is a valid number
+        if (isNaN(parseFloat(price)) || parseFloat(price) < 0) {
+            showToast('Validation Error', 'Please enter a valid price', 'error');
+            return;
+        }
+        
+        // Validate duration is a positive number
+        if (isNaN(parseInt(duration)) || parseInt(duration) <= 0) {
+            showToast('Validation Error', 'Please enter a valid duration (must be greater than 0)', 'error');
             return;
         }
         
@@ -131,11 +167,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Delete Course
-    function deleteCourse() {
-        courses = courses.filter(course => course.id !== currentCourseId);
-        saveCourses();
-        confirmModal.hide();
-        renderCoursesTable();
+    async function deleteCourse() {
+        try {
+            const courseName = courses.find(c => c.id === currentCourseId)?.name || 'the course';
+            
+            // Delete from Firebase
+            await coursesRef.child(currentCourseId).remove();
+            
+            // Update local state
+            courses = courses.filter(course => course.id !== currentCourseId);
+            
+            showToast('Success', `Course "${courseName}" has been deleted`, 'success');
+        } catch (error) {
+            console.error('Error deleting course:', error);
+            showToast('Error', 'Failed to delete course. Please try again.', 'error');
+        } finally {
+            confirmModal.hide();
+        }
     }
     
     // Confirm Delete
@@ -145,18 +193,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Toggle Course Status
-    function toggleCourseStatus(courseId) {
-        const course = courses.find(c => c.id === courseId);
-        if (course) {
-            course.status = course.status === 'active' ? 'inactive' : 'active';
-            saveCourses();
-            renderCoursesTable();
+    async function toggleCourseStatus(courseId) {
+        try {
+            const course = courses.find(c => c.id === courseId);
+            if (course) {
+                const newStatus = course.status === 'active' ? 'inactive' : 'active';
+                // Update in Firebase
+                await coursesRef.child(courseId).update({ status: newStatus });
+                // Update local state
+                course.status = newStatus;
+                // Show success message
+                showToast('Success', `Course status updated to ${newStatus}`, 'success');
+                // Re-render the table
+                renderCoursesTable();
+            }
+        } catch (error) {
+            console.error('Error toggling course status:', error);
+            showToast('Error', 'Failed to update course status', 'error');
         }
     }
     
-    // Save courses to localStorage
-    function saveCourses() {
-        localStorage.setItem('courses', JSON.stringify(courses));
+    // Save courses to Firebase
+    async function saveCourses() {
+        try {
+            const courseData = isEditMode 
+                ? courses.find(c => c.id === currentCourseId)
+                : courses[0];
+                
+            if (!courseData) {
+                throw new Error('No course data to save');
+            }
+            
+            // Save to Firebase
+            if (isEditMode) {
+                await coursesRef.child(courseData.id).set(courseData);
+            } else {
+                const newCourseRef = coursesRef.push();
+                courseData.id = newCourseRef.key;
+                await newCourseRef.set(courseData);
+            }
+            
+            // Show success message
+            showToast('Success', `Course ${isEditMode ? 'updated' : 'added'} successfully!`, 'success');
+            
+            // Reset form and close modal if open
+            if (document.getElementById('courseForm')) {
+                document.getElementById('courseForm').reset();
+            }
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('courseModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error saving course:', error);
+            showToast('Error', 'Failed to save course. Please try again.', 'error');
+            return false;
+        }
     }
     
     // Render Courses Table
@@ -254,36 +350,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Initialize sample data if none exists
-    if (courses.length === 0) {
-        courses = [
-            {
-                id: '1',
-                name: 'Web Development Bootcamp',
-                description: 'Learn full-stack web development with modern technologies',
-                instructor: 'John Doe',
-                duration: 12,
-                price: 4999,
-                image: 'https://via.placeholder.com/300x200?text=Web+Development',
-                students: 125,
-                status: 'active',
-                createdAt: '2024-01-15T10:30:00Z'
-            },
-            {
-                id: '2',
-                name: 'Data Science Fundamentals',
-                description: 'Master the basics of data science and machine learning',
-                instructor: 'Jane Smith',
-                duration: 16,
-                price: 6999,
-                image: 'https://via.placeholder.com/300x200?text=Data+Science',
-                students: 89,
-                status: 'active',
-                createdAt: '2024-02-01T14:45:00Z'
-            }
-        ];
-        saveCourses();
+    // Load courses from Firebase
+    function loadCourses() {
+        coursesRef.on('value', (snapshot) => {
+            courses = [];
+            snapshot.forEach((childSnapshot) => {
+                const course = childSnapshot.val();
+                courses.push(course);
+            });
+            renderCoursesTable();
+        }, (error) => {
+            console.error('Error loading courses:', error);
+            showToast('Error', 'Failed to load courses', 'error');
+        });
     }
+    
+    // Initialize data
+    loadCourses();
+    
+    // Course data will be loaded from Firebase
     // Mobile menu toggle
     const mobileMenuToggle = document.createElement('button');
     mobileMenuToggle.className = 'mobile-menu-toggle';
@@ -305,6 +390,59 @@ document.addEventListener('DOMContentLoaded', function() {
     mobileMenuToggle.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', toggleSidebar);
     
+    // Show toast notification
+    function showToast(title, message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+        
+        const toast = document.createElement('div');
+        toast.className = `toast show ${type}`;
+        
+        const toastHeader = document.createElement('div');
+        toastHeader.className = 'toast-header';
+        
+        // Add icon based on type
+        let iconClass = 'info-circle';
+        if (type === 'success') iconClass = 'check-circle';
+        if (type === 'error') iconClass = 'exclamation-circle';
+        if (type === 'warning') iconClass = 'exclamation-triangle';
+        
+        toastHeader.innerHTML = `
+            <i class="fas fa-${iconClass} me-2"></i>
+            <strong class="me-auto">${title}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        `;
+        
+        const toastBody = document.createElement('div');
+        toastBody.className = 'toast-body';
+        toastBody.textContent = message;
+        
+        toast.appendChild(toastHeader);
+        toast.appendChild(toastBody);
+        toastContainer.appendChild(toast);
+        
+        // Auto-remove toast after 5 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+        
+        // Close button functionality
+        const closeBtn = toast.querySelector('.btn-close');
+        closeBtn.addEventListener('click', () => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        });
+    }
+    
+    // Create toast container if it doesn't exist
+    function createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container position-fixed top-0 end-0 p-3';
+        document.body.appendChild(container);
+        return container;
+    }
+
     // Initialize tooltips
     const tooltipElements = document.querySelectorAll('[data-toggle="tooltip"]');
     tooltipElements.forEach(el => {
