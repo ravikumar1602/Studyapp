@@ -1,53 +1,111 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyC7tdxFyTOWOqaAxJptAq5vZm92oz1v05M",
+    authDomain: "study-portal-bef7a.firebaseapp.com",
+    databaseURL: "https://study-portal-bef7a-default-rtdb.firebaseio.com",
+    projectId: "study-portal-bef7a",
+    storageBucket: "study-portal-bef7a.appspot.com",
+    messagingSenderId: "335677529543",
+    appId: "1:335677529543:web:0e95959d30b3b3daf4cde2"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const signInBtn = document.querySelector('.btn-login');
-    const socialLoginSection = document.querySelector('.social-login');
-    const divider = document.querySelector('.divider');
-    const authFooter = document.querySelector('.auth-footer');
-    
-    // Update email input to accept email or phone
-    emailInput.placeholder = 'Enter your email or phone number';
-    emailInput.type = 'text';
-    emailInput.pattern = ".*"; // Remove email validation
+    const forgotPasswordLink = document.getElementById('forgotPassword');
     
     // Focus on email field when page loads
     emailInput.focus();
     
-    // Function to check if user exists
-    function checkUserExists(identifier) {
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        return users.some(u => u.email === identifier || u.phone === identifier);
-    }
-    
     // Function to handle login
-    function handleLogin(e) {
+    async function handleLogin(e) {
         e.preventDefault();
         
-        const identifier = emailInput.value.trim();
+        const email = emailInput.value.trim();
         const password = passwordInput.value;
         
-        if (!identifier) {
-            showMessage('Please enter your email or phone number', 'error');
+        if (!email) {
+            showMessage('Please enter your email', 'error');
             emailInput.focus();
             return;
         }
         
-        // Check if user exists
-        if (!checkUserExists(identifier)) {
-            const register = confirm('No account found with this email/phone. Would you like to register instead?');
-            if (register) {
-                window.location.href = 'register.html';
-            }
+        if (!password) {
+            showMessage('Please enter your password', 'error');
+            passwordInput.focus();
             return;
         }
         
-        // If we get here, user exists - now check password
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const user = users.find(u => 
-            (u.email === identifier || u.phone === identifier)
-        );
+        // Disable the button to prevent multiple clicks
+        signInBtn.disabled = true;
+        signInBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        
+        try {
+            // Sign in with email and password
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            // Check if user is approved in Firestore
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                
+                if (!userData.isApproved) {
+                    await auth.signOut();
+                    showMessage('Your account is pending admin approval. Please try again later.', 'error');
+                    return;
+                }
+                
+                // Store user data in session storage
+                sessionStorage.setItem('currentUser', JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: userData.displayName || `${userData.firstName} ${userData.lastName}`.trim(),
+                    role: userData.role || 'student',
+                    isApproved: userData.isApproved || false
+                }));
+                
+                // Redirect based on user role
+                if (userData.role === 'admin') {
+                    window.location.href = 'admin/dashboard.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            } else {
+                await auth.signOut();
+                showMessage('User data not found. Please contact support.', 'error');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            let errorMessage = 'Login failed. Please check your credentials and try again.';
+            
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                errorMessage = 'Invalid email or password. Please try again.';
+            } else if (error.code === 'auth/too-many-requests') {
+                errorMessage = 'Too many failed login attempts. Please try again later or reset your password.';
+            } else if (error.code === 'auth/user-disabled') {
+                errorMessage = 'This account has been disabled. Please contact support.';
+            }
+            
+            showMessage(errorMessage, 'error');
+        } finally {
+            // Re-enable the button
+            signInBtn.disabled = false;
+            signInBtn.innerHTML = 'Sign In';
+        }
         
         if (!user) {
             showMessage('An error occurred. Please try again.', 'error');

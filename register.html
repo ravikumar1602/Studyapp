@@ -47,6 +47,43 @@
             margin-bottom: 1.5rem;
         }
         
+        .password-input {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            cursor: pointer;
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+        
+        .strength-meter {
+            display: flex;
+            gap: 2px;
+            margin-top: 0.25rem;
+            height: 4px;
+        }
+        
+        .strength-segment {
+            flex: 1;
+            background-color: #e9ecef;
+            border-radius: 2px;
+        }
+        
+        #strength-text {
+            display: block;
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
@@ -249,6 +286,8 @@
                         <p>Join thousands of students learning with StudyApp</p>
                     </div>
                     
+                    <div id="registerMessage" class="alert-message" style="display: none;"></div>
+                    
                     <form id="registerForm">
                         <div class="form-row">
                             <div class="form-group">
@@ -268,8 +307,20 @@
                         
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" id="password" class="form-control" placeholder="Create a password" required>
-                            <small class="text-muted">Must be at least 8 characters</small>
+                            <div class="password-input">
+                                <input type="password" id="password" class="form-control" placeholder="Create a password" required minlength="6">
+                                <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                            </div>
+                            <small class="text-muted">Must be at least 6 characters</small>
+                            <div class="password-strength">
+                                <div class="strength-meter">
+                                    <div class="strength-segment" id="strength-1"></div>
+                                    <div class="strength-segment" id="strength-2"></div>
+                                    <div class="strength-segment" id="strength-3"></div>
+                                    <div class="strength-segment" id="strength-4"></div>
+                                </div>
+                                <span id="strength-text">Password strength</span>
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -312,15 +363,18 @@
                             </label>
                         </div>
                         
-                        <button type="submit" class="btn-register">Create Account</button>
+                        <button type="submit" class="btn-register" id="registerBtn">
+                            <span class="button-text">Create Account</span>
+                            <span class="spinner" style="display: none;"></span>
+                        </button>
                         
                         <div class="divider">or sign up with</div>
                         
                         <div class="social-login">
-                            <button type="button" class="btn-social btn-google">
+                            <button type="button" class="btn-social btn-google" id="googleSignUp">
                                 <i class="fab fa-google"></i> Sign up with Google
                             </button>
-                            <button type="button" class="btn-social btn-facebook">
+                            <button type="button" class="btn-social btn-facebook" id="facebookSignUp">
                                 <i class="fab fa-facebook-f"></i> Sign up with Facebook
                             </button>
                         </div>
@@ -429,6 +483,96 @@
         });
     </script>
     <script src="app.js"></script>
-    <script src="register.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module" src="register.js"></script>
+    
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const mainNav = document.querySelector('.main-nav');
+            
+            if (mobileMenuToggle && mainNav) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    mainNav.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+            }
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.main-nav') && !e.target.closest('.mobile-menu-toggle')) {
+                    if (mainNav) mainNav.classList.remove('active');
+                    if (mobileMenuToggle) mobileMenuToggle.classList.remove('active');
+                }
+            });
+            
+            // Toggle password visibility
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+            
+            // Password strength indicator
+            const passwordInputEl = document.getElementById('password');
+            if (passwordInputEl) {
+                passwordInputEl.addEventListener('input', function() {
+                    const password = this.value;
+                    const strengthBars = [
+                        document.getElementById('strength-1'),
+                        document.getElementById('strength-2'),
+                        document.getElementById('strength-3'),
+                        document.getElementById('strength-4')
+                    ];
+                    const strengthText = document.getElementById('strength-text');
+                    
+                    // Reset all bars
+                    strengthBars.forEach(bar => {
+                        if (bar) bar.style.backgroundColor = '#e9ecef';
+                    });
+                    
+                    // Calculate password strength
+                    let strength = 0;
+                    const hasLowerCase = /[a-z]/.test(password);
+                    const hasUpperCase = /[A-Z]/.test(password);
+                    const hasNumbers = /\d/.test(password);
+                    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+                    
+                    if (password.length > 0) strength += 1;
+                    if (password.length >= 8) strength += 1;
+                    if (hasLowerCase && hasUpperCase) strength += 1;
+                    if (hasNumbers || hasSpecialChars) strength += 1;
+                    
+                    // Update strength bars
+                    for (let i = 0; i < strength; i++) {
+                        if (!strengthBars[i]) continue;
+                        let color = '#dc3545'; // Red for weak
+                        if (strength === 2) color = '#ffc107'; // Yellow for medium
+                        else if (strength >= 3) color = '#28a745'; // Green for strong
+                        
+                        strengthBars[i].style.backgroundColor = color;
+                    }
+                    
+                    // Update strength text
+                    if (strengthText) {
+                        const strengthLabels = ['Very Weak', 'Weak', 'Medium', 'Strong', 'Very Strong'];
+                        strengthText.textContent = password.length > 0 ? `${strengthLabels[strength - 1] || ''}` : 'Password strength';
+                        if (strengthBars[strength - 1]) {
+                            strengthText.style.color = window.getComputedStyle(strengthBars[strength - 1]).backgroundColor;
+                        } else {
+                            strengthText.style.color = '#6c757d';
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
