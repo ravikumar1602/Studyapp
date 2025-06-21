@@ -1,7 +1,15 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+import { 
+    getFirestore, 
+    doc, 
+    getDoc, 
+    collection, 
+    query, 
+    where, 
+    getDocs 
+} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -64,8 +72,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const userData = userDoc.data();
                 
                 if (!userData.isApproved) {
+                    // Store user email in session storage to show on pending approval page
+                    sessionStorage.setItem('pendingApprovalEmail', userData.email || user.email);
                     await auth.signOut();
-                    showMessage('Your account is pending admin approval. Please try again later.', 'error');
+                    // Redirect to pending approval page
+                    window.location.href = 'pending-approval.html';
                     return;
                 }
                 
@@ -173,19 +184,81 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
     
+    // Function to check if user exists in Firestore
+    async function checkUserExists(email) {
+        try {
+            // First check if email is valid
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return false;
+            }
+            
+            // Check if user exists in Firestore by querying users collection
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('email', '==', email));
+            const querySnapshot = await getDocs(q);
+            
+            return !querySnapshot.empty;
+        } catch (error) {
+            console.error('Error checking user existence:', error);
+            return false;
+        }
+    }
+    
     // Add event listeners
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
         
-        // Add real-time validation
-        emailInput.addEventListener('blur', function() {
-            const identifier = this.value.trim();
-            if (identifier) {
-                const userExists = checkUserExists(identifier);
-                if (!userExists) {
-                    showMessage('No account found with this email/phone. Please register first.', 'info');
+        // Real-time email validation
+        emailInput.addEventListener('blur', async function() {
+            const email = this.value.trim();
+            if (email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showMessage('Please enter a valid email address', 'error');
+                    return;
+                }
+                
+                try {
+                    const userExists = await checkUserExists(email);
+                    if (!userExists) {
+                        showMessage('No account found with this email. Please register first.', 'info');
+                    }
+                } catch (error) {
+                    console.error('Error during email validation:', error);
                 }
             }
         });
+        
+        // Clear messages when user starts typing
+        emailInput.addEventListener('input', function() {
+            const messageDiv = document.getElementById('loginMessage');
+            if (messageDiv && messageDiv.style.display !== 'none') {
+                messageDiv.style.display = 'none';
+            }
+        });
+        
+        // Forgot password functionality
+        if (forgotPasswordLink) {
+            forgotPasswordLink.addEventListener('click', async function(e) {
+                e.preventDefault();
+                const email = emailInput.value.trim() || prompt('Please enter your email address to reset your password:');
+                if (email) {
+                    try {
+                        await sendPasswordResetEmail(auth, email);
+                        showMessage('Password reset email sent! Please check your inbox.', 'success');
+                    } catch (error) {
+                        console.error('Error sending password reset email:', error);
+                        let errorMessage = 'Failed to send password reset email. ';
+                        if (error.code === 'auth/user-not-found') {
+                            errorMessage += 'No user found with this email address.';
+                        } else {
+                            errorMessage += 'Please try again later.';
+                        }
+                        showMessage(errorMessage, 'error');
+                    }
+                }
+            });
+        }
     }
 });

@@ -6,54 +6,146 @@
     <title>Pending Approval - StudyApp</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #4a6cf7;
+            --text-color: #333;
+            --light-gray: #f5f7fa;
+            --border-radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f7fa;
-            color: #333;
+            background-color: var(--light-gray);
+            color: var(--text-color);
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .container {
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .approval-container {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            max-width: 500px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 40px 30px;
             text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .approval-icon {
-            font-size: 64px;
-            color: #4a6cf7;
-            margin-bottom: 20px;
+        
+        .approval-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
+        
+        .approval-icon i {
+            font-size: 72px;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            opacity: 0.9;
+            animation: float 3s ease-in-out infinite;
+        }
+        
         h1 {
-            color: #2c3e50;
-            margin-bottom: 20px;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 28px;
+            font-weight: 700;
         }
+        
         p {
-            color: #6c757d;
-            margin-bottom: 30px;
-            font-size: 1.1em;
+            color: #4a5568;
+            margin-bottom: 25px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .user-email {
+            display: inline-block;
+            background-color: #f0f4ff;
+            color: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 15px 0 25px;
+            font-size: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .info-text {
+            background-color: #f8f9ff;
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+        
+        .info-text p {
+            margin: 0;
+            color: #4a5568;
         }
         .btn {
-            display: inline-block;
-            background: #4a6cf7;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--primary-color);
             color: white;
-            padding: 12px 30px;
-            border-radius: 5px;
+            padding: 12px 28px;
+            border-radius: 50px;
             text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
         }
+        
+        .btn i {
+            font-size: 14px;
+        }
+        
         .btn:hover {
             background: #3a5bd9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(74, 108, 247, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            margin-left: 12px;
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(74, 108, 247, 0.1);
+            color: var(--primary-color);
         }
         .contact-info {
             margin-top: 30px;
@@ -63,11 +155,27 @@
         .contact-info p {
             margin: 10px 0;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .approval-container {
                 margin: 20px;
-                padding: 20px;
+                padding: 30px 20px;
             }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+            
+            .btn-outline {
+                margin-left: 0;
+            }
+        }
+        
+        /* Animation */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
     </style>
 </head>
@@ -75,20 +183,44 @@
     <div class="container">
         <div class="approval-container">
             <div class="approval-icon">
-                <i class="fas fa-user-clock"></i>
+                <i class="fas fa-clock"></i>
             </div>
             <h1>Account Pending Approval</h1>
-            <p>Thank you for registering with StudyApp! Your account is currently under review by our administration team.</p>
-            <p>You will receive an email notification once your account has been approved. This process typically takes 24-48 hours.</p>
+            <p>We've received your registration request for:</p>
+            <div id="userEmail" class="user-email">user@example.com</div>
             
-            <div class="contact-info">
-                <p>If you have any questions, please contact our support team:</p>
-                <p><i class="fas fa-envelope"></i> support@studyapp.com</p>
-                <p><i class="fas fa-phone"></i> +91 1234567890</p>
+            <div class="info-text">
+                <p>Your account is currently under review by our admin team. This process usually takes 24-48 hours.</p>
             </div>
             
-            <a href="index.html" class="btn">Return to Home</a>
+            <p>You'll receive an email notification at the address above once your account has been approved.</p>
+            
+            <div class="button-group">
+                <a href="login.html" class="btn"><i class="fas fa-sign-in-alt"></i> Back to Login</a>
+                <a href="contact.html" class="btn btn-outline"><i class="fas fa-headset"></i> Contact Support</a>
+            </div>
+            
+            <div class="contact-info">
+                <p>Need help? Reach out to our support team:</p>
+                <p><i class="fas fa-envelope"></i> support@studyapp.com</p>
+                <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Get the user's email from session storage
+        document.addEventListener('DOMContentLoaded', function() {
+            const userEmail = sessionStorage.getItem('pendingApprovalEmail');
+            const emailElement = document.getElementById('userEmail');
+            
+            if (userEmail && emailElement) {
+                emailElement.textContent = userEmail;
+            }
+            
+            // Clear the email from session storage after displaying it
+            sessionStorage.removeItem('pendingApprovalEmail');
+        });
+    </script>
 </body>
 </html>

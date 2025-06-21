@@ -1,3 +1,6 @@
+// Import Firebase database
+import { database } from './firebase-config.js';
+
 // Configuration
 const COURSES_PER_PAGE = 8;
 let currentPage = 1;
@@ -9,12 +12,52 @@ const coursesGrid = document.querySelector('.courses-grid');
 const paginationContainer = document.getElementById('pagination');
 const loadingElement = document.getElementById('loading-courses');
 
-// Function to fetch courses from localStorage
-function getCourses() {
+// Function to fetch courses from Firebase Realtime Database
+function getCourses(callback) {
     try {
-        return JSON.parse(localStorage.getItem('courses')) || [];
+        const coursesRef = database.ref('courses');
+        
+        // Set up real-time listener
+        coursesRef.on('value', (snapshot) => {
+            const coursesData = snapshot.val();
+            const coursesList = [];
+            
+            if (coursesData) {
+                // Convert the object of courses to an array and filter out inactive courses
+                Object.keys(coursesData).forEach(key => {
+                    const course = coursesData[key];
+                    // Only include active courses (status not 'inactive' or undefined)
+                    if (course.status !== 'inactive') {
+                        coursesList.push({
+                            id: key,
+                            ...course
+                        });
+                    }
+                });
+            }
+            
+            allCourses = coursesList;
+            filteredCourses = [];
+            
+            if (typeof callback === 'function') {
+                callback(coursesList);
+            }
+            
+            // Update the display with the first page
+            displayCourses(1);
+        }, (error) => {
+            console.error('Error fetching courses:', error);
+            if (typeof callback === 'function') {
+                callback([]);
+            }
+        });
+        
+        return []; // Initial empty array, will be updated by the listener
     } catch (error) {
-        console.error('Error parsing courses from localStorage:', error);
+        console.error('Error in getCourses:', error);
+        if (typeof callback === 'function') {
+            callback([]);
+        }
         return [];
     }
 }
@@ -206,134 +249,145 @@ function updatePagination(totalCourses, currentPage) {
                 displayCourses(currentPage);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-        });
     });
+});
 }
 
 // Function to sort courses based on selected criteria
-function sortCourses(courses) {
-    const sortBy = document.getElementById('sort-by')?.value || 'newest';
-    
-    return [...courses].sort((a, b) => {
-        switch (sortBy) {
-            case 'newest':
-                // Sort by creation date (newest first)
-                return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-                
-            case 'popular':
-                // Sort by number of students (descending)
-                return (b.students || 0) - (a.students || 0);
-                
-            case 'price-low':
-                // Sort by price (low to high)
-                return (a.price || 0) - (b.price || 0);
-                
-            case 'price-high':
-                // Sort by price (high to low)
-                return (b.price || 0) - (a.price || 0);
-                
-            case 'rating':
-                // Sort by rating (highest first)
-                return (b.rating || 0) - (a.rating || 0);
-                
-            default:
-                return 0;
-        }
-    });
+function sortCourses(courses, sortBy = 'newest') {
+if (!Array.isArray(courses)) return [];
+
+return [...courses].sort((a, b) => {
+    switch (sortBy) {
+        case 'newest':
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        case 'rating-desc':
+            return (b.rating || 0) - (a.rating || 0);
+        case 'price-asc':
+            return (a.price || 0) - (b.price || 0);
+        case 'price-desc':
+            return (b.price || 0) - (a.price || 0);
+        case 'title-asc':
+            return (a.name || '').localeCompare(b.name || '');
+        case 'title-desc':
+            return (b.name || '').localeCompare(a.name || '');
+        default:
+            return 0;
+    }
+});
 }
 
 // Function to filter courses based on search and filters
 function filterCourses() {
-    const searchTerm = (document.querySelector('.search-bar input')?.value || '').toLowerCase().trim();
-    const categoryFilter = (document.querySelector('select[data-filter="category"]')?.value || 'all').toLowerCase();
-    const levelFilter = (document.querySelector('select[data-filter="level"]')?.value || 'all').toLowerCase();
-    
-    // Reset to first page when filtering
-    currentPage = 1;
-    
-    if (!searchTerm && categoryFilter === 'all' && levelFilter === 'all') {
-        // No filters applied, show all active courses
-        filteredCourses = [];
-        displayCourses(currentPage);
-        return;
-    }
-    
-    // Apply filters
-    filteredCourses = allCourses.filter(course => {
-        const matchesSearch = !searchTerm || 
-            course.name.toLowerCase().includes(searchTerm) || 
-            (course.description && course.description.toLowerCase().includes(searchTerm)) ||
-            (course.instructor && course.instructor.toLowerCase().includes(searchTerm));
-            
-        const matchesCategory = categoryFilter === 'all' || 
-            (course.category && course.category.toLowerCase() === categoryFilter);
-            
-        const matchesLevel = levelFilter === 'all' || 
-            (course.level && course.level.toLowerCase() === levelFilter);
-        
-        return matchesSearch && matchesCategory && matchesLevel;
-    });
-    
-    // Apply sorting
-    filteredCourses = sortCourses(filteredCourses);
-    
-    displayCourses(currentPage);
+const searchInput = document.getElementById('course-search');
+const categoryFilter = document.getElementById('category-filter');
+const levelFilter = document.getElementById('level-filter');
+const sortSelect = document.getElementById('sort-courses');
+
+if (!searchInput || !categoryFilter || !levelFilter || !sortSelect) return;
+
+const searchTerm = searchInput.value.trim().toLowerCase();
+const category = categoryFilter.value;
+const level = levelFilter.value;
+const sortBy = sortSelect.value;
+
+// Start with all courses
+filteredCourses = [...allCourses];
+
+// Apply filters
+if (searchTerm) {
+    filteredCourses = filteredCourses.filter(course => 
+        (course.name && course.name.toLowerCase().includes(searchTerm)) ||
+        (course.description && course.description.toLowerCase().includes(searchTerm)) ||
+        (course.instructor && course.instructor.toLowerCase().includes(searchTerm)) ||
+        (course.category && course.category.toLowerCase().includes(searchTerm))
+    );
+}
+
+if (category) {
+    filteredCourses = filteredCourses.filter(course => 
+        course.category && course.category.toLowerCase() === category.toLowerCase()
+    );
+}
+
+if (level) {
+    filteredCourses = filteredCourses.filter(course => 
+        course.level && course.level.toLowerCase() === level.toLowerCase()
+    );
+}
+
+// Sort the filtered results
+filteredCourses = sortCourses(filteredCourses, sortBy);
+
+// Reset to first page and display results
+currentPage = 1;
+displayCourses(currentPage);
 }
 
 // Function to initialize the courses page
 function initCoursesPage() {
-    // Load courses
-    allCourses = getCourses()
-        .filter(course => course.status === 'active')
-        .map(course => ({
-            ...course,
-            // Add a random number of students between 10 and 1000 if not set
-            students: course.students || Math.floor(Math.random() * 1000) + 10,
-            // Add a random rating between 3.5 and 5.0 if not set
-            rating: course.rating || (Math.random() * 1.5 + 3.5).toFixed(1)
-        }));
-    
-    // Set up event listeners for filters and sorting
-    const searchInput = document.querySelector('.search-bar input');
-    const filterSelects = document.querySelectorAll('.filter-select');
-    const sortSelect = document.getElementById('sort-by');
-    
-    // Add input event with debounce for search
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(filterCourses, 300);
-        });
+// Show loading state
+if (loadingElement) {
+    loadingElement.style.display = 'block';
+}
+
+// Get all courses from Firebase
+getCourses((courses) => {
+    // Hide loading state
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
     }
+
+    if (!courses || courses.length === 0) {
+        showNoCoursesMessage();
+        return;
+    }
+
+    // Update filters with unique categories and levels
+    updateFilters(courses);
+
+    // Set up event listeners for filters
+    const searchInput = document.getElementById('course-search');
+    const categoryFilter = document.getElementById('category-filter');
+    const levelFilter = document.getElementById('level-filter');
+    const sortSelect = document.getElementById('sort-courses');
+
+    if (searchInput) searchInput.addEventListener('input', filterCourses);
+    if (categoryFilter) categoryFilter.addEventListener('change', filterCourses);
+    if (levelFilter) levelFilter.addEventListener('change', filterCourses);
+    if (sortSelect) sortSelect.addEventListener('change', filterCourses);
+});
+}
+
+// Function to update filter dropdowns with unique values
+function updateFilters(courses) {
+    const categoryFilter = document.getElementById('category-filter');
+    const levelFilter = document.getElementById('level-filter');
     
-    // Add change event for filter selects
-    filterSelects.forEach(select => {
-        select.addEventListener('change', filterCourses);
+    if (!categoryFilter || !levelFilter) return;
+    
+    // Get unique categories and levels
+    const categories = new Set();
+    const levels = new Set();
+    
+    courses.forEach(course => {
+        if (course.category) categories.add(course.category);
+        if (course.level) levels.add(course.level);
     });
     
-    // Add change event for sort select
-    if (sortSelect) {
-        sortSelect.addEventListener('change', () => {
-            if (filteredCourses.length > 0) {
-                filteredCourses = sortCourses(filteredCourses);
-                displayCourses(currentPage);
-            } else {
-                filterCourses();
-            }
-        });
-    }
+    // Update category filter
+    const categoryOptions = ['<option value="">All Categories</option>'];
+    categories.forEach(category => {
+        categoryOptions.push(`<option value="${category}">${category}</option>`);
+    });
+    categoryFilter.innerHTML = categoryOptions.join('');
     
-    // Initial sort and display of courses
-    allCourses = sortCourses(allCourses);
-    displayCourses(currentPage);
-    
-    // Add a small delay to hide the loading spinner (for demo purposes)
-    setTimeout(() => {
-        if (loadingElement) {
-            loadingElement.style.display = 'none';
-        }
-    }, 500);
+    // Update level filter
+    const levelOptions = ['<option value="">All Levels</option>'];
+    levels.forEach(level => {
+        levelOptions.push(`<option value="${level}">${level}</option>`);
+    });
+    levelFilter.innerHTML = levelOptions.join('');
 }
 
 // Initialize the page when DOM is loaded
