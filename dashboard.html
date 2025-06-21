@@ -290,7 +290,7 @@
     <main class="main-content">
         <!-- Top Navigation -->
         <div class="top-nav">
-            <h2 class="mb-0">Dashboard Overview</h2>
+            <h2 class="mb-0">Dashboard</h2>
             <div class="user-menu">
                 <div class="user-avatar" id="userAvatar">
                     <!-- Initials will be set by JavaScript -->
@@ -312,17 +312,9 @@
         <!-- Dashboard Content -->
         <div class="container-fluid p-0">
             <!-- Stats Cards -->
-            <div class="row g-4">
+            <div class="row">
                 <div class="col-md-6 col-lg-3">
-                    <div class="dashboard-card h-100">
-                        <div class="card-icon primary">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <h3 class="card-value">12</h3>
-                        <p class="card-title">Enrolled Courses</p>
-                        <div class="card-change positive">
-                            <i class="fas fa-arrow-up"></i> 2 New
-                        </div>
+                    <div class="dashboard-card">
                         <div class="card-icon primary">
                             <i class="fas fa-book"></i>
                         </div>
@@ -371,106 +363,11 @@
                 </div>
             </div>
 
-            <div class="row g-4">
-                <!-- Stats Cards -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="dashboard-card h-100">
-                        <div class="card-icon success">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <h3 class="card-value">8</h3>
-                        <p class="card-title">In Progress</p>
-                        <div class="card-change positive">
-                            <i class="fas fa-arrow-up"></i> 1 New
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="dashboard-card h-100">
-                        <div class="card-icon warning">
-                            <i class="fas fa-certificate"></i>
-                        </div>
-                        <h3 class="card-value">3</h3>
-                        <p class="card-title">Certificates</p>
-                        <div class="card-change">
-                            <i class="fas fa-equals"></i> No change
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="dashboard-card h-100">
-                        <div class="card-icon danger">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h3 class="card-value">5h 42m</h3>
-                        <p class="card-title">Study Time</p>
-                        <div class="card-change positive">
-                            <i class="fas fa-arrow-up"></i> 1.2h Today
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-4 mt-2">
-                <!-- My Courses Section -->
-                <div class="col-lg-8">
-                    <div class="dashboard-card h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="mb-0">My Courses</h4>
-                            <a href="my-courses.html" class="btn btn-sm btn-outline-primary">View All</a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Course</th>
-                                        <th>Progress</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="enrolledCoursesList">
-                                    <!-- Courses will be loaded dynamically -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <div class="row">
                 <!-- Recent Activity -->
-                <div class="col-lg-4">
-                    <div class="dashboard-card h-100">
-                        <h4 class="mb-4">Recent Activity</h4>
-                        <div class="activity-list" id="recentActivity">
-                            <!-- Activity items will be loaded dynamically -->
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-book-open"></i>
-                                </div>
-                                <div class="activity-details">
-                                    <p class="mb-1">Started new course: Web Development</p>
-                                    <small class="text-muted">2 hours ago</small>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-tasks"></i>
-                                </div>
-                                <div class="activity-details">
-                                    <p class="mb-1">Completed lesson: CSS Flexbox</p>
-                                    <small class="text-muted">1 day ago</small>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-trophy"></i>
-                                </div>
-                                <div class="activity-details">
-                                    <p class="mb-1">Earned certificate: JavaScript Basics</p>
-                                    <small class="text-muted">3 days ago</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="col-lg-8">
+                    <!-- My Courses Section -->
+                    <div class="dashboard-card mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="mb-0">My Courses</h5>
                             <a href="my-courses.html" class="btn btn-sm btn-outline-primary">View All</a>

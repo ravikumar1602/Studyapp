@@ -42,6 +42,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="#videos">
+                            <i class="fas fa-video"></i>
+                            <span>Videos</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#content">
                             <i class="fas fa-file-alt"></i>
                             <span>Content</span>
@@ -88,6 +94,46 @@
             <div class="dashboard-content" id="dashboard-content">
                 <h1>Dashboard Overview</h1>
                 
+                <!-- Videos Section (initially hidden) -->
+                <div id="videos-section" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Manage Course Videos</h2>
+                        <button class="btn btn-primary" id="addVideoBtn">
+                            <i class="fas fa-plus me-2"></i>Add New Video
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Course</th>
+                                            <th>Duration</th>
+                                            <th>Type</th>
+                                            <th>Added On</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="videosTableBody">
+                                        <!-- Videos will be loaded here -->
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">
+                                                <div class="text-muted">
+                                                    <i class="fas fa-video-slash fa-3x mb-3"></i>
+                                                    <p>No videos found</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Users Section (initially hidden) -->
                 <div id="users-section" class="d-none">
                     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -542,5 +588,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="admin-script.js"></script>
     <script src="admin-users.js"></script>
+    <script src="admin-videos.js"></script>
 </body>
 </html>

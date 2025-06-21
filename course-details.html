@@ -298,9 +298,24 @@
             <!-- Main Content -->
             <div class="col-lg-8">
                 <div class="course-content">
-                    <div class="card
-                    <div class="card-header">
-                        <h4>About This Course</h4>
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Video Classes</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="videoList" class="list-group">
+                                <!-- Videos will be dynamically inserted here -->
+                                <div class="text-center py-4 text-muted" id="noVideosMessage">
+                                    <i class="fas fa-video-slash fa-3x mb-3"></i>
+                                    <p>No video classes available yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h4>About This Course</h4>
                     </div>
                     <div class="card-body">
                         <div id="courseDescription">
@@ -763,6 +778,143 @@
                 }
             };
         });
+        
+        function loadCourseVideos(courseId) {
+            // In a real app, this would fetch from your backend
+            const courses = JSON.parse(localStorage.getItem('courses') || '[]');
+            const course = courses.find(c => c.id === courseId);
+            
+            if (!course || !course.videos || course.videos.length === 0) {
+                return;
+            }
+            
+            const videoList = document.getElementById('videoList');
+            const noVideosMessage = document.getElementById('noVideosMessage');
+            
+            if (noVideosMessage) noVideosMessage.remove();
+            videoList.innerHTML = '';
+            
+            course.videos.forEach((video, index) => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                videoItem.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-play-circle me-3 text-primary" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <h6 class="mb-0">${video.title || 'Untitled Video'}</h6>
+                            <small class="text-muted">${video.duration || 'Duration not specified'}</small>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="playVideo('${video.url}', '${video.title || 'Video'}')">
+                        <i class="fas fa-play me-1"></i> Play
+                    </button>
+                `;
+                videoList.appendChild(videoItem);
+            });
+        }
+        
+        function showAddVideoModal(courseId) {
+            // You can implement a modal to add new videos
+            // For now, we'll just show a prompt
+            const title = prompt('Enter video title:');
+            if (!title) return;
+            
+            const url = prompt('Enter YouTube or Google Drive URL:');
+            if (!url) return;
+            
+            // In a real app, you would validate the URL and get video duration
+            const duration = prompt('Enter video duration (e.g., 10:30):', '00:00');
+            
+            // Add video to course
+            const courses = JSON.parse(localStorage.getItem('courses') || '[]');
+            const courseIndex = courses.findIndex(c => c.id === courseId);
+            
+            if (courseIndex !== -1) {
+                if (!courses[courseIndex].videos) {
+                    courses[courseIndex].videos = [];
+                }
+                
+                const newVideo = {
+                    id: Date.now().toString(),
+                    title: title,
+                    url: url,
+                    duration: duration,
+                    addedDate: new Date().toISOString()
+                };
+                
+                courses[courseIndex].videos.push(newVideo);
+                localStorage.setItem('courses', JSON.stringify(courses));
+                
+                // Refresh the video list
+                loadCourseVideos(courseId);
+                alert('Video added successfully!');
+            }
+        }
+        
+        function playVideo(url, title) {
+            // Check if it's a YouTube URL
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                // Extract video ID from URL
+                let videoId = '';
+                if (url.includes('youtube.com/watch')) {
+                    videoId = new URL(url).searchParams.get('v');
+                } else if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1].split('?')[0];
+                }
+                
+                if (videoId) {
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                    showVideoModal(embedUrl, title);
+                    return;
+                }
+            }
+            
+            // For Google Drive or other direct video links
+            showVideoModal(url, title);
+        }
+        
+        function showVideoModal(videoUrl, title) {
+            // Create modal HTML
+            const modalHtml = `
+                <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="videoModalLabel">${title}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-0">
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="${videoUrl}" 
+                                            title="${title}" 
+                                            allowfullscreen
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                    </iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove any existing modals
+            const existingModal = document.getElementById('videoModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add new modal to DOM
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Show the modal
+            const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+            videoModal.show();
+            
+            // Clean up when modal is closed
+            document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
+        }
         
         function updateRatingDistribution(ratings) {
             const totalRatings = Object.values(ratings).reduce((sum, count) => sum + count, 0);
