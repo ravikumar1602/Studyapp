@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - StudyApp</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6cf7;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .course-header {
+            background: linear-gradient(135deg, #4a6cf7 0%, #6c5ce7 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .course-header .container {
+            position: relative;
+        }
+
+        .course-breadcrumb {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .course-breadcrumb a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .course-breadcrumb a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .course-breadcrumb .separator {
+            margin: 0 0.5rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .course-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .course-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .meta-item i {
+            margin-right: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-enroll {
+            background-color: white;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-enroll:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-outline-light {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .course-content {
+            margin-bottom: 3rem;
+        }
+
+        .course-sidebar {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .instructor-card {
+            text-align: center;
+        }
+
+        .instructor-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructor-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .instructor-title {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .module-item:last-child {
+            border-bottom: none;
+        }
+
+        .module-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .module-content {
+            padding-left: 1.5rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
+
+        .module-content.show {
+            display: block;
+        }
+
+        .lesson-item {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .lesson-item:hover {
+            color: var(--primary-color);
+        }
+
+        .lesson-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .course-header {
+                padding: 2rem 0;
+            }
+            
+            .course-title {
+                font-size: 1.8rem;
+            }
+            
+            .course-meta {
+                gap: 1rem;
+            }
+            
+            .course-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .course-actions .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Course Header -->
+    <header class="course-header">
+        <div class="container">
+            <div class="course-breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="separator">/</span>
+                <a href="courses.html">Courses</a>
+                <span class="separator">/</span>
+                <span id="courseCategory">Loading...</span>
+            </div>
+            <h1 class="course-title" id="courseTitle">Loading Course...</h1>
+            <div class="course-meta">
+                <div class="meta-item">
+                    <i class="fas fa-user-graduate"></i>
+                    <span id="enrolledStudents">0</span> students
+                </div>
+                <div class="meta-item">
+                    <i class="far fa-clock"></i>
+                    <span id="courseDuration">0</span> hours
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-signal"></i>
+                    <span id="courseLevel">Beginner</span>
+                </div>
+                <div class="meta-item">
+                    <i class="far fa-star"></i>
+                    <span id="courseRating">0.0</span> (<span id="totalRatings">0</span> ratings)
+                </div>
+            </div>
+            <div class="course-actions">
+                <button class="btn btn-enroll" id="enrollBtn">Enroll Now</button>
+                <button class="btn btn-outline-light">
+                    <i class="far fa-heart"></i> Add to Wishlist
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <div class="course-content">
+                    <div class="card
+                    <div class="card-header">
+                        <h4>About This Course</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="courseDescription">
+                            <p>Loading course description...</p>
+                        </div>
+                        
+                        <h5 class="mt-4">What You'll Learn</h5>
+                        <div class="row mt-3" id="learningOutcomes">
+                            <!-- Learning outcomes will be added by JavaScript -->
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                                    <span>Loading learning outcomes...</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4">Course Content</h5>
+                        <div class="mt-3" id="courseModules">
+                            <!-- Modules and lessons will be added by JavaScript -->
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4>Instructor</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-md-flex align-items-center">
+                            <img src="https://via.placeholder.com/120" alt="Instructor" class="rounded-circle me-4 mb-3 mb-md-0" id="instructorImage">
+                            <div>
+                                <h5 id="instructorName">Loading...</h5>
+                                <p class="text-muted mb-2" id="instructorTitle">Senior Instructor</p>
+                                <div class="d-flex mb-3">
+                                    <div class="me-3">
+                                        <i class="fas fa-star text-warning"></i>
+                                        <span id="instructorRating">4.8</span> Instructor Rating
+                                    </div>
+                                    <div class="me-3">
+                                        <i class="fas fa-user-graduate text-primary"></i>
+                                        <span id="instructorStudents">0</span> Students
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-play-circle text-info"></i>
+                                        <span id="instructorCourses">0</span> Courses
+                                    </div>
+                                </div>
+                                <p class="mb-0" id="instructorBio">Loading instructor bio...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4>Student Feedback</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center mb-4 mb-md-0">
+                                <div class="display-4 fw-bold text-primary" id="averageRating">0.0</div>
+                                <div class="mb-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="far fa-star text-warning"></i>
+                                </div>
+                                <div class="text-muted">Course Rating</div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-2 d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">5 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating5"></div>
+                                    </div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating5Percent">0%</div>
+                                </div>
+                                <div class="mb-2 d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">4 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating4"></div>
+                                    </div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating4Percent">0%</div>
+                                </div>
+                                <div class="mb-2 d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">3 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating3"></div>
+                                    </div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating3Percent">0%</div>
+                                </div>
+                                <div class="mb-2 d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">2 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating2"></div>
+                                    </div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating2Percent">0%</div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">1 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating1"></div>
+                                    </div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating1Percent">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="course-sidebar">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="ratio ratio-16x9">
+                                <img src="https://via.placeholder.com/800x450" alt="Course Thumbnail" class="img-fluid" id="courseImage">
+                            </div>
+                            <div class="p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="mb-0" id="coursePrice">Free</h4>
+                                    <div class="text-muted text-decoration-line-through" id="originalPrice"></div>
+                                </div>
+                                <button class="btn btn-primary w-100 mb-3" id="enrollBtnSidebar">Enroll Now</button>
+                                <button class="btn btn-outline-secondary w-100 mb-3">
+                                    <i class="far fa-heart me-2"></i>Add to Wishlist
+                                </button>
+                                
+                                <ul class="list-unstyled">
+                                    <li class="py-2 border-bottom">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Instructor</span>
+                                            <span id="instructorNameSidebar">Loading...</span>
+                                        </div>
+                                    </li>
+                                    <li class="py-2 border-bottom">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Duration</span>
+                                            <span id="courseDurationSidebar">0 hours</span>
+                                        </div>
+                                    </li>
+                                    <li class="py-2 border-bottom">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Lectures</span>
+                                            <span id="lectureCount">0</span>
+                                        </div>
+                                    </li>
+                                    <li class="py-2 border-bottom">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Enrolled</span>
+                                            <span id="enrolledCount">0</span> students
+                                        </div>
+                                    </li>
+                                    <li class="py-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Language</span>
+                                            <span id="courseLanguage">English</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                                
+                                <div class="mt-4">
+                                    <h6>Share this course</h6>
+                                    <div class="d-flex gap-2">
+                                        <a href="#" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fab fa-facebook-f"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fab fa-twitter"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fab fa-linkedin-in"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Course Features</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Full lifetime access
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Access on mobile and TV
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Certificate of completion
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    30-day money-back guarantee
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get course ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id');
+            
+            if (!courseId) {
+                window.location.href = 'courses.html';
+                return;
+            }
+            
+            // Get course data from localStorage
+            const courses = JSON.parse(localStorage.getItem('courses')) || [];
+            const course = courses.find(c => c.id == courseId);
+            
+            if (!course) {
+                document.body.innerHTML = `
+                    <div class="container my-5 py-5 text-center">
+                        <div class="display-1 text-muted mb-4">404</div>
+                        <h2 class="mb-4">Course Not Found</h2>
+                        <p class="lead mb-4">The course you're looking for doesn't exist or has been removed.</p>
+                        <a href="courses.html" class="btn btn-primary">Browse Courses</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Update page title
+            document.title = `${course.name} - StudyApp`;
+            
+            // Update course header
+            document.getElementById('courseTitle').textContent = course.name;
+            document.getElementById('courseCategory').textContent = course.category || 'Course';
+            document.getElementById('enrolledStudents').textContent = course.enrolled || 0;
+            document.getElementById('courseDuration').textContent = course.duration || 'N/A';
+            document.getElementById('courseLevel').textContent = course.level || 'All Levels';
+            document.getElementById('courseRating').textContent = course.rating?.toFixed(1) || '0.0';
+            document.getElementById('totalRatings').textContent = course.totalRatings || 0;
+            
+            // Update course description
+            document.getElementById('courseDescription').innerHTML = course.description || 
+                '<p>No description available for this course.</p>';
+            
+            // Update learning outcomes
+            const learningOutcomes = document.getElementById('learningOutcomes');
+            if (course.learningOutcomes && course.learningOutcomes.length > 0) {
+                learningOutcomes.innerHTML = course.learningOutcomes.map(outcome => `
+                    <div class="col-md-6 mb-2">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                            <span>${outcome}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                learningOutcomes.innerHTML = '<p>No learning outcomes provided for this course.</p>';
+            }
+            
+            // Update course modules
+            const courseModules = document.getElementById('courseModules');
+            if (course.modules && course.modules.length > 0) {
+                courseModules.innerHTML = course.modules.map((module, index) => `
+                    <div class="module-item">
+                        <div class="module-title" onclick="toggleModule(${index})">
+                            <span>${module.name} <small class="text-muted">(${module.lessons ? module.lessons.length : 0} lessons)</small></span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="module-content" id="module-${index}">
+                            ${module.lessons ? module.lessons.map((lesson, i) => `
+                                <a href="#" class="lesson-item">
+                                    <i class="far fa-play-circle"></i>
+                                    <span>${i + 1}. ${lesson.name || 'Untitled Lesson'}</span>
+                                    <span class="ms-auto">${lesson.duration || '5:00'}</span>
+                                </a>
+                            `).join('') : '<p>No lessons in this module.</p>'}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                courseModules.innerHTML = '<p>No modules available for this course yet.</p>';
+            }
+            
+            // Update instructor info
+            document.getElementById('instructorName').textContent = course.instructor?.name || 'Instructor';
+            document.getElementById('instructorNameSidebar').textContent = course.instructor?.name || 'Instructor';
+            document.getElementById('instructorTitle').textContent = course.instructor?.title || 'Senior Instructor';
+            document.getElementById('instructorBio').textContent = course.instructor?.bio || 'No bio available.';
+            
+            // Update course image
+            const courseImage = document.getElementById('courseImage');
+            if (course.image) {
+                courseImage.src = course.image;
+                courseImage.alt = course.name;
+            }
+            
+            // Update pricing
+            const coursePrice = document.getElementById('coursePrice');
+            const originalPrice = document.getElementById('originalPrice');
+            
+            if (course.price && course.price > 0) {
+                coursePrice.textContent = `$${course.price.toFixed(2)}`;
+                if (course.originalPrice && course.originalPrice > course.price) {
+                    originalPrice.textContent = `$${course.originalPrice.toFixed(2)}`;
+                    originalPrice.style.display = 'block';
+                } else {
+                    originalPrice.style.display = 'none';
+                }
+            } else {
+                coursePrice.textContent = 'Free';
+                originalPrice.style.display = 'none';
+            }
+            
+            // Update lecture count
+            let totalLectures = 0;
+            if (course.modules) {
+                course.modules.forEach(module => {
+                    if (module.lessons) {
+                        totalLectures += module.lessons.length;
+                    }
+                });
+            }
+            document.getElementById('lectureCount').textContent = totalLectures;
+            document.getElementById('enrolledCount').textContent = course.enrolled || 0;
+            
+            // Update language
+            if (course.language) {
+                document.getElementById('courseLanguage').textContent = course.language;
+            }
+            
+            // Update rating distribution
+            updateRatingDistribution(course.ratings || {});
+            
+            // Enroll button click handler
+            const enrollButtons = document.querySelectorAll('#enrollBtn, #enrollBtnSidebar');
+            enrollButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Check if user is logged in
+                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                    if (!currentUser) {
+                        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                        return;
+                    }
+                    
+                    // Get or initialize user enrollments
+                    const userEnrollments = JSON.parse(localStorage.getItem('userEnrollments') || '{}');
+                    if (!userEnrollments[currentUser.id]) {
+                        userEnrollments[currentUser.id] = [];
+                    }
+                    
+                    // Check if already enrolled
+                    const isEnrolled = userEnrollments[currentUser.id].some(
+                        enrollment => enrollment.courseId == courseId
+                    );
+                    
+                    if (isEnrolled) {
+                        alert('You are already enrolled in this course!');
+                        return;
+                    }
+                    
+                    // Add enrollment
+                    userEnrollments[currentUser.id].push({
+                        courseId: courseId,
+                        enrolledAt: new Date().toISOString(),
+                        progress: 0,
+                        lastAccessed: new Date().toISOString()
+                    });
+                    
+                    // Save to localStorage
+                    localStorage.setItem('userEnrollments', JSON.stringify(userEnrollments));
+                    
+                    // Update UI
+                    const enrolledCount = document.getElementById('enrolledCount');
+                    if (enrolledCount) {
+                        const currentCount = parseInt(enrolledCount.textContent) || 0;
+                        enrolledCount.textContent = currentCount + 1;
+                    }
+                    
+                    // Update course's enrolled count
+                    const courses = JSON.parse(localStorage.getItem('courses') || '[]');
+                    const courseIndex = courses.findIndex(c => c.id == courseId);
+                    if (courseIndex !== -1) {
+                        if (!courses[courseIndex].enrolled) {
+                            courses[courseIndex].enrolled = 0;
+                        }
+                        courses[courseIndex].enrolled++;
+                        localStorage.setItem('courses', JSON.stringify(courses));
+                    }
+                    
+                    // Show success message and update button
+                    alert('Successfully enrolled in the course!');
+                    enrollButtons.forEach(btn => {
+                        btn.textContent = 'Go to Course';
+                        btn.classList.remove('btn-primary');
+                        btn.classList.add('btn-success');
+                        btn.onclick = function() {
+                            window.location.href = `course-player.html?courseId=${courseId}`;
+                        };
+                    });
+                });
+            });
+            
+            // Check if user is already enrolled and update UI
+            function checkEnrollmentStatus() {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                if (!currentUser) return;
+                
+                const userEnrollments = JSON.parse(localStorage.getItem('userEnrollments') || '{}');
+                const userCourses = userEnrollments[currentUser.id] || [];
+                const isEnrolled = userCourses.some(enrollment => enrollment.courseId == courseId);
+                
+                if (isEnrolled) {
+                    enrollButtons.forEach(btn => {
+                        btn.textContent = 'Go to Course';
+                        btn.classList.remove('btn-primary');
+                        btn.classList.add('btn-success');
+                        btn.onclick = function() {
+                            window.location.href = `course-player.html?courseId=${courseId}`;
+                        };
+                    });
+                }
+            }
+            
+            // Initial check
+            checkEnrollmentStatus();
+            
+            // Toggle module content
+            window.toggleModule = function(index) {
+                const moduleContent = document.getElementById(`module-${index}`);
+                const icon = document.querySelector(`#module-${index}`).previousElementSibling.querySelector('i');
+                
+                if (moduleContent.classList.contains('show')) {
+                    moduleContent.classList.remove('show');
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                } else {
+                    moduleContent.classList.add('show');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                }
+            };
+        });
+        
+        function updateRatingDistribution(ratings) {
+            const totalRatings = Object.values(ratings).reduce((sum, count) => sum + count, 0);
+            let weightedSum = 0;
+            
+            // Calculate average rating
+            for (let i = 1; i <= 5; i++) {
+                const count = ratings[i] || 0;
+                weightedSum += i * count;
+                
+                // Update progress bars
+                const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0;
+                const progressBar = document.getElementById(`rating${i}`);
+                const percentageText = document.getElementById(`rating${i}Percent`);
+                
+                if (progressBar && percentageText) {
+                    progressBar.style.width = `${percentage}%`;
+                    percentageText.textContent = `${Math.round(percentage)}%`;
+                }
+            }
+            
+            // Update average rating
+            const averageRating = totalRatings > 0 ? (weightedSum / totalRatings).toFixed(1) : 0;
+            const averageRatingElement = document.getElementById('averageRating');
+            if (averageRatingElement) {
+                averageRatingElement.textContent = averageRating;
+            }
+            
+            // Update star display
+            const starsContainer = averageRatingElement?.nextElementSibling;
+            if (starsContainer) {
+                const stars = starsContainer.querySelectorAll('i');
+                const fullStars = Math.floor(averageRating);
+                const hasHalfStar = averageRating % 1 >= 0.5;
+                
+                stars.forEach((star, index) => {
+                    if (index < fullStars) {
+                        star.className = 'fas fa-star text-warning';
+                    } else if (index === fullStars && hasHalfStar) {
+                        star.className = 'fas fa-star-half-alt text-warning';
+                    } else {
+                        star.className = 'far fa-star text-warning';
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

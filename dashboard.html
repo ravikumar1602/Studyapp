@@ -267,7 +267,7 @@
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="courses.html" class="nav-link">
+            <a href="my-courses.html" class="nav-link">
                 <i class="fas fa-book"></i>
                 <span>My Courses</span>
             </a>
@@ -290,7 +290,7 @@
     <main class="main-content">
         <!-- Top Navigation -->
         <div class="top-nav">
-            <h2 class="mb-0">Dashboard</h2>
+            <h2 class="mb-0">Dashboard Overview</h2>
             <div class="user-menu">
                 <div class="user-avatar" id="userAvatar">
                     <!-- Initials will be set by JavaScript -->
@@ -312,16 +312,24 @@
         <!-- Dashboard Content -->
         <div class="container-fluid p-0">
             <!-- Stats Cards -->
-            <div class="row">
+            <div class="row g-4">
                 <div class="col-md-6 col-lg-3">
-                    <div class="dashboard-card">
+                    <div class="dashboard-card h-100">
+                        <div class="card-icon primary">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="card-value">12</h3>
+                        <p class="card-title">Enrolled Courses</p>
+                        <div class="card-change positive">
+                            <i class="fas fa-arrow-up"></i> 2 New
+                        </div>
                         <div class="card-icon primary">
                             <i class="fas fa-book"></i>
                         </div>
                         <div class="card-title">Enrolled Courses</div>
-                        <div class="card-value" id="enrolledCourses">0</div>
+                        <div class="card-value" id="enrolledCoursesCount">0</div>
                         <div class="card-change positive">
-                            <i class="fas fa-arrow-up"></i> 12% from last month
+                            <i class="fas fa-arrow-up"></i> <span id="enrolledChange">0%</span> from last month
                         </div>
                     </div>
                 </div>
@@ -363,16 +371,129 @@
                 </div>
             </div>
 
-            <div class="row">
-                <!-- Recent Activity -->
+            <div class="row g-4">
+                <!-- Stats Cards -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="dashboard-card h-100">
+                        <div class="card-icon success">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h3 class="card-value">8</h3>
+                        <p class="card-title">In Progress</p>
+                        <div class="card-change positive">
+                            <i class="fas fa-arrow-up"></i> 1 New
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="dashboard-card h-100">
+                        <div class="card-icon warning">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <h3 class="card-value">3</h3>
+                        <p class="card-title">Certificates</p>
+                        <div class="card-change">
+                            <i class="fas fa-equals"></i> No change
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="dashboard-card h-100">
+                        <div class="card-icon danger">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3 class="card-value">5h 42m</h3>
+                        <p class="card-title">Study Time</p>
+                        <div class="card-change positive">
+                            <i class="fas fa-arrow-up"></i> 1.2h Today
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-2">
+                <!-- My Courses Section -->
                 <div class="col-lg-8">
+                    <div class="dashboard-card h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">My Courses</h4>
+                            <a href="my-courses.html" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Progress</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="enrolledCoursesList">
+                                    <!-- Courses will be loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Recent Activity -->
+                <div class="col-lg-4">
+                    <div class="dashboard-card h-100">
+                        <h4 class="mb-4">Recent Activity</h4>
+                        <div class="activity-list" id="recentActivity">
+                            <!-- Activity items will be loaded dynamically -->
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <p class="mb-1">Started new course: Web Development</p>
+                                    <small class="text-muted">2 hours ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <p class="mb-1">Completed lesson: CSS Flexbox</p>
+                                    <small class="text-muted">1 day ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <p class="mb-1">Earned certificate: JavaScript Basics</p>
+                                    <small class="text-muted">3 days ago</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">My Courses</h5>
+                            <a href="my-courses.html" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div id="myCourses" class="row g-3">
+                            <!-- Enrolled courses will be loaded here -->
+                            <div class="col-12">
+                                <div class="text-center py-4">
+                                    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">You haven't enrolled in any courses yet.</p>
+                                    <a href="courses.html" class="btn btn-primary mt-3">Browse Courses</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
                     <div class="dashboard-card">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="mb-0">Recent Activity</h5>
                             <a href="activity.html" class="btn btn-sm btn-outline-primary">View All</a>
                         </div>
                         <div id="recentActivity">
-                            <!-- Activity items will be added by JavaScript -->
                             <div class="text-center py-5">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Loading...</span>
@@ -407,6 +528,95 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // Function to load user's enrolled courses
+        function loadEnrolledCourses(userId) {
+            const userEnrollments = JSON.parse(localStorage.getItem('userEnrollments') || '{}');
+            const userCourses = userEnrollments[userId] || [];
+            
+            // Update enrolled courses count
+            document.getElementById('enrolledCoursesCount').textContent = userCourses.length;
+            
+            // Calculate percentage change (demo data)
+            const changePercentage = Math.floor(Math.random() * 20) - 5; // Random between -5% and 15%
+            const changeElement = document.getElementById('enrolledChange');
+            changeElement.textContent = `${Math.abs(changePercentage)}%`;
+            
+            if (changePercentage > 0) {
+                changeElement.parentElement.className = 'card-change positive';
+                changeElement.parentElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${changePercentage}% from last month`;
+            } else if (changePercentage < 0) {
+                changeElement.parentElement.className = 'card-change negative';
+                changeElement.parentElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(changePercentage)}% from last month`;
+            } else {
+                changeElement.parentElement.className = 'card-change';
+                changeElement.parentElement.innerHTML = `No change from last month`;
+            }
+            
+            // Get all courses
+            const allCourses = JSON.parse(localStorage.getItem('courses') || '[]');
+            
+            // Filter and sort enrolled courses
+            const enrolledCourses = allCourses
+                .filter(course => userCourses.some(uc => uc.courseId == course.id))
+                .sort((a, b) => {
+                    const aEnrollment = userCourses.find(uc => uc.courseId == a.id);
+                    const bEnrollment = userCourses.find(uc => uc.courseId == b.id);
+                    return new Date(bEnrollment?.lastAccessed || 0) - new Date(aEnrollment?.lastAccessed || 0);
+                })
+                .slice(0, 4); // Show max 4 courses
+            
+            const coursesContainer = document.getElementById('myCourses');
+            
+            if (enrolledCourses.length > 0) {
+                coursesContainer.innerHTML = enrolledCourses.map(course => {
+                    const enrollment = userCourses.find(uc => uc.courseId == course.id);
+                    const progress = enrollment?.progress || 0;
+                    
+                    return `
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 me-3" style="width: 80px;">
+                                            <img src="${course.image || 'https://via.placeholder.com/100'}" 
+                                                class="img-fluid rounded" alt="${course.name}">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="card-title mb-1">${course.name}</h6>
+                                            <p class="text-muted small mb-2">${course.instructor?.name || 'Instructor'}</p>
+                                            <div class="progress mb-2" style="height: 6px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                    style="width: ${progress}%" 
+                                                    aria-valuenow="${progress}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">${progress}% Complete</small>
+                                                <a href="course-details.html?id=${course.id}" class="btn btn-sm btn-outline-primary">
+                                                    ${progress > 0 ? 'Continue' : 'Start'}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                coursesContainer.innerHTML = `
+                    <div class="col-12">
+                        <div class="text-center py-4">
+                            <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">You haven't enrolled in any courses yet.</p>
+                            <a href="courses.html" class="btn btn-primary mt-3">Browse Courses</a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Check if user is logged in
             const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -424,9 +634,11 @@
             const initials = (currentUser.firstName ? currentUser.firstName[0] : '') + (currentUser.lastName ? currentUser.lastName[0] : '');
             userAvatar.textContent = initials || 'U';
             
-            // Generate random stats for demo
-            document.getElementById('enrolledCourses').textContent = Math.floor(Math.random() * 10) + 1;
-            document.getElementById('completedCourses').textContent = Math.floor(Math.random() * 5) + 1;
+            // Load user's enrolled courses
+            loadEnrolledCourses(currentUser.id);
+            
+            // Generate other stats for demo
+            document.getElementById('completedCourses').textContent = Math.floor(Math.random() * 5);
             document.getElementById('inProgress').textContent = Math.floor(Math.random() * 3) + 1;
             document.getElementById('achievements').textContent = Math.floor(Math.random() * 5) + 1;
             

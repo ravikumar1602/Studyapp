@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Courses - StudyApp</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6cf7;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            height: 100vh;
+            position: fixed;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: #555;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            background-color: rgba(74, 108, 247, 0.1);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .sidebar-nav .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 1.5rem;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        /* Course Cards */
+        .course-card {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 1.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-image {
+            height: 160px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .course-card:hover .course-image img {
+            transform: scale(1.05);
+        }
+
+        .course-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .course-content {
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-category {
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .course-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 3.2em;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .course-instructor {
+            display: flex;
+            align-items: center;
+        }
+
+        .instructor-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            object-fit: cover;
+        }
+
+        .instructor-name {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        .course-rating {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--warning-color);
+        }
+
+        .course-rating i {
+            margin-right: 0.25rem;
+        }
+
+        .progress {
+            height: 6px;
+            border-radius: 3px;
+            margin: 1rem 0;
+            background-color: #f0f0f0;
+        }
+
+        .progress-bar {
+            background-color: var(--primary-color);
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            text-align: right;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            opacity: 0.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .empty-state p {
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-browse {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1040;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .top-nav {
+                position: relative;
+            }
+
+            .mobile-menu-toggle {
+                display: block !important;
+            }
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            z-index: 1030;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>StudyApp</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="my-courses.html" class="nav-link active">
+                <i class="fas fa-book"></i>
+                <span>My Courses</span>
+            </a>
+            <a href="progress.html" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Progress</span>
+            </a>
+            <a href="certificates.html" class="nav-link">
+                <i class="fas fa-certificate"></i>
+                <span>Certificates</span>
+            </a>
+            <a href="settings.html" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <h1 class="page-title">My Courses</h1>
+            <div class="user-menu">
+                <div class="user-avatar" id="userAvatar">
+                    <!-- Initials will be set by JavaScript -->
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-link text-dark text-decoration-none dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="userName">Loading...</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courses Grid -->
+        <div class="container-fluid p-0">
+            <div class="row" id="enrolledCourses">
+                <!-- Enrolled courses will be loaded here by JavaScript -->
+                <div class="col-12">
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <h3>No Courses Enrolled</h3>
+                        <p>You haven't enrolled in any courses yet. Browse our catalog and start learning today!</p>
+                        <a href="courses.html" class="btn btn-primary btn-browse">Browse Courses</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
+
+            // Set user info
+            document.getElementById('userName').textContent = `${currentUser.firstName || 'User'}`;
+            
+            // Set user avatar with initials
+            const userAvatar = document.getElementById('userAvatar');
+            const initials = (currentUser.firstName ? currentUser.firstName[0] : '') + (currentUser.lastName ? currentUser.lastName[0] : '');
+            userAvatar.textContent = initials || 'U';
+            
+            // Load enrolled courses
+            loadEnrolledCourses(currentUser.id);
+            
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+            }
+            
+            // Close sidebar when clicking outside
+            document.addEventListener('click', function(event) {
+                const isClickInside = sidebar.contains(event.target) || mobileMenuToggle.contains(event.target);
+                if (!isClickInside && window.innerWidth <= 992) {
+                    sidebar.classList.remove('active');
+                }
+            });
+            
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            });
+        });
+        
+        function loadEnrolledCourses(userId) {
+            // Get user's enrolled courses from localStorage
+            const userEnrollments = JSON.parse(localStorage.getItem('userEnrollments') || '{}');
+            const userCourses = userEnrollments[userId] || [];
+            
+            if (userCourses.length === 0) {
+                // Show empty state (already in HTML)
+                return;
+            }
+            
+            // Get all courses
+            const allCourses = JSON.parse(localStorage.getItem('courses') || '[]');
+            
+            // Filter enrolled courses
+            const enrolledCourses = allCourses.filter(course => 
+                userCourses.some(enrollment => enrollment.courseId === course.id)
+            );
+            
+            // Add progress to enrolled courses
+            const coursesWithProgress = enrolledCourses.map(course => {
+                const enrollment = userCourses.find(e => e.courseId === course.id);
+                return {
+                    ...course,
+                    progress: enrollment?.progress || 0,
+                    lastAccessed: enrollment?.lastAccessed
+                };
+            });
+            
+            // Sort by last accessed (most recent first)
+            coursesWithProgress.sort((a, b) => 
+                new Date(b.lastAccessed || 0) - new Date(a.lastAccessed || 0)
+            );
+            
+            // Render courses
+            const coursesContainer = document.getElementById('enrolledCourses');
+            
+            if (coursesWithProgress.length > 0) {
+                coursesContainer.innerHTML = coursesWithProgress.map(course => `
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="course-card">
+                            <div class="course-image">
+                                <img src="${course.image || 'https://via.placeholder.com/400x225'}" alt="${course.name}">
+                                <span class="course-badge">${course.level || 'All Levels'}</span>
+                            </div>
+                            <div class="course-content">
+                                <div class="course-category">${course.category || 'General'}</div>
+                                <h3 class="course-title">${course.name}</h3>
+                                
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: ${course.progress || 0}%"></div>
+                                </div>
+                                <div class="progress-text">${course.progress || 0}% Complete</div>
+                                
+                                <div class="course-meta">
+                                    <div class="course-instructor">
+                                        <img src="${course.instructor?.image || 'https://via.placeholder.com/40'}" alt="Instructor" class="instructor-avatar">
+                                        <span class="instructor-name">${course.instructor?.name || 'Instructor'}</span>
+                                    </div>
+                                    <div class="course-rating">
+                                        <i class="fas fa-star"></i>
+                                        <span>${course.rating?.toFixed(1) || '0.0'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="course-details.html?id=${course.id}" class="stretched-link"></a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    </script>
+</body>
+</html>
