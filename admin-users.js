@@ -1,4 +1,16 @@
+// Import Firebase functions
+import { 
+    collection, 
+    doc, 
+    getDoc, 
+    getDocs, 
+    updateDoc, 
+    serverTimestamp 
+} from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+// Get the initialized Firebase instances from window
 document.addEventListener('DOMContentLoaded', function() {
+    const db = window.db; // Get the Firestore instance from the global scope
     // DOM Elements
     const usersSection = document.getElementById('users-section');
     const pendingUsersTableBody = document.getElementById('pendingUsersTableBody');
@@ -23,8 +35,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show the selected section
             showSection(target);
             
-            // Load data when users section is shown
+            // If users section is shown, load users
             if (target === 'users') {
+                console.log('Loading users section...');
                 loadUsers();
             } else if (target === 'courses') {
                 // Load courses if needed
@@ -139,7 +152,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show/Hide sections
     function showSection(sectionId) {
-        // Hide all sections first
+        console.log('Showing section:', sectionId);
+        // Hide all sections
         document.querySelectorAll('.dashboard-content > div').forEach(section => {
             section.classList.add('d-none');
         });
@@ -148,68 +162,118 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetSection = document.getElementById(`${sectionId}-section`);
         if (targetSection) {
             targetSection.classList.remove('d-none');
+            console.log('Section shown:', targetSection.id);
+        } else {
+            console.warn('Section not found:', `${sectionId}-section`);
+        }
+        
+        // Load users if users section is shown
+        if (sectionId === 'users') {
+            loadUsers();
         }
     }
     
-    // Load users from localStorage
-    function loadUsers() {
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        
-        // Remove any test users (you can customize this filter as needed)
-        users = users.filter(user => {
-            // Keep only users with proper email format and required fields
-            return user.email && 
-                   user.email.includes('@') && 
-                   user.firstName && 
-                   user.lastName &&
-                   !user.email.includes('test') &&
-                   !user.email.includes('example');
-        });
-        
-        // Sort users by registration date (newest first)
-        users.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        
-        renderPendingUsers(users.filter(user => !user.isApproved));
-        renderAllUsers(users);
+    // Load users from Firestore
+    async function loadUsers() {
+        try {
+            console.log('Loading users...');
+            // Show loading state
+            if (pendingUsersTableBody) pendingUsersTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Loading users...</td></tr>';
+            if (allUsersTableBody) allUsersTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Loading users...</td></tr>';
+            
+            // Get all users from Firestore
+            const usersSnapshot = await getDocs(collection(db, 'users'));
+            console.log('Users snapshot:', usersSnapshot);
+            
+            const users = [];
+            
+            usersSnapshot.forEach(doc => {
+                const userData = doc.data();
+                console.log('User data:', doc.id, userData);
+                users.push({
+                    id: doc.id,
+                    ...userData,
+                    // Format dates for display
+                    createdAt: userData.createdAt?.toDate ? userData.createdAt.toDate().toLocaleDateString() : 'N/A',
+                    approvedAt: userData.approvedAt?.toDate ? userData.approvedAt.toDate().toLocaleDateString() : null,
+                    lastLogin: userData.lastLogin?.toDate ? userData.lastLogin.toDate().toLocaleString() : 'Never'
+                });
+            });
+            
+            console.log('All users:', users);
+            
+            // Filter pending users (not approved yet and not rejected)
+            const pendingUsers = users.filter(user => !user.isApproved && (!user.status || user.status === 'pending'));
+            console.log('Pending users:', pendingUsers);
+            
+            // Render the tables
+            if (pendingUsersTableBody) renderPendingUsers(pendingUsers);
+            if (allUsersTableBody) renderAllUsers(users);
+            
+        } catch (error) {
+            console.error('Error loading users:', error);
+            showMessage('Failed to load users. Please try again.', 'error');
+            
+            if (pendingUsersTableBody) pendingUsersTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading users: ' + error.message + '</td></tr>';
+            if (allUsersTableBody) allUsersTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading users: ' + error.message + '</td></tr>';
+        }
     }
     
     // Render pending users table
     function renderPendingUsers(users) {
         if (!pendingUsersTableBody) return;
         
-        pendingUsersTableBody.innerHTML = '';
-        
         if (users.length === 0) {
-            pendingUsersTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center py-4">
-                        <div class="text-muted">No pending approvals</div>
-                    </td>
-                </tr>`;
+            pendingUsersTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4">No pending user approvals</td></tr>';
             return;
         }
         
-        users.forEach((user, index) => {
+        pendingUsersTableBody.innerHTML = '';
+        
+        users.forEach(user => {
             const row = document.createElement('tr');
+            row.setAttribute('data-user-id', user.id);
+            
+            // Format display name
+            const displayName = user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'No Name';
+            
             row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${user.firstName} ${user.lastName}</td>
-                <td>${user.email}</td>
-                <td>${user.phone || 'N/A'}</td>
-                <td>${new Date(user.createdAt).toLocaleDateString()}</td>
                 <td>
-                    <button class="btn btn-sm btn-primary view-user-details" data-user-id="${user.id || user.email}">
-                        <i class="fas fa-eye"></i> View
+                    <div class="d-flex align-items-center">
+                        ${user.photoURL ? 
+                            `<img src="${user.photoURL}" class="rounded-circle me-2" width="32" height="32" alt="${displayName}">` : 
+                            `<div class="avatar-placeholder rounded-circle me-2" style="width: 32px; height: 32px; background-color: #e9ecef; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user text-muted"></i>
+                            </div>`
+                        }
+                        <div>
+                            <div class="fw-medium">${displayName}</div>
+                            <div class="text-muted small">${user.role || 'student'}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${user.email || 'N/A'}</td>
+                <td>${user.phone || 'N/A'}</td>
+                <td>${user.city || 'N/A'}</td>
+                <td>${user.createdAt || 'N/A'}</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary view-user-btn" data-user-id="${user.id}" title="Review User">
+                        <i class="fas fa-eye me-1"></i> Review
                     </button>
-                </td>`;
+                </td>
+            `;
+            
             pendingUsersTableBody.appendChild(row);
         });
         
         // Add event listeners to view buttons
-        document.querySelectorAll('.view-user-details').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const userId = this.getAttribute('data-user-id');
-                showUserDetails(userId);
+        document.querySelectorAll('.view-user-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const userId = e.currentTarget.getAttribute('data-user-id');
+                const user = users.find(u => u.id === userId);
+                if (user) {
+                    showUserDetails(user);
+                }
             });
         });
     }
@@ -221,18 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         allUsersTableBody.innerHTML = '';
         
         if (users.length === 0) {
-            allUsersTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center py-4">
-                        <div class="modal-body" id="userDetailsContent">
-                <!-- User details will be loaded here -->
-                <div class="approval-details mt-3">
-                    <h6>Approval Details:</h6>
-                    <p class="mb-1" id="approvalStatus"></p>
-                    <p class="mb-1" id="approvedBy"></p>
-                    <p class="mb-0" id="approvedAt"></p>
-                </div>
-            </div>`;
+            allUsersTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4">No users found</td></tr>';
             return;
         }
         
@@ -258,169 +311,355 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add event listeners to view buttons
         document.querySelectorAll('.view-user-details').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', async function() {
                 const userId = this.getAttribute('data-user-id');
-                showUserDetails(userId);
+                console.log('View button clicked for user ID:', userId);
+                try {
+                    // Get the full user data from Firestore
+                    const userDoc = await getDoc(doc(db, 'users', userId));
+                    if (userDoc.exists()) {
+                        showUserDetails({ id: userDoc.id, ...userDoc.data() });
+                    } else {
+                        console.error('User not found:', userId);
+                        showMessage('User not found', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error loading user:', error);
+                    showMessage('Error loading user details', 'error');
+                }
             });
         });
     }
     
     // Show user details in modal
-    function showUserDetails(userId) {
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const user = users.find(u => (u.id === userId) || (u.email === userId));
+    function showUserDetails(user) {
+        console.log('Showing user details:', user);
+        currentViewingUserId = user.id || user;
+        console.log('Current viewing user ID set to:', currentViewingUserId);
         
-        if (!user) {
-            alert('User not found!');
-            return;
+        // Format display name
+        const displayName = user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'No Name';
+        
+        // Format dates
+        const formatDate = (dateString) => {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return dateString;
+            }
+        };
+        
+        // Format user details in a more organized way
+        const userDetails = [
+            { 
+                group: 'Basic Information',
+                fields: [
+                    { label: 'Email', value: user.email || 'N/A', icon: 'envelope' },
+                    { label: 'Role', value: (user.role || 'student').charAt(0).toUpperCase() + (user.role || 'student').slice(1), icon: 'user-tag' },
+                    { label: 'Phone', value: user.phone || 'N/A', icon: 'phone' },
+                    { label: 'Gender', value: user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : 'N/A', icon: 'venus-mars' },
+                    { label: 'Date of Birth', value: user.dob ? formatDate(user.dob) : 'N/A', icon: 'calendar-day' }
+                ]
+            },
+            {
+                group: 'Location',
+                fields: [
+                    { label: 'Address', value: user.address || 'N/A', icon: 'map-marker-alt' },
+                    { label: 'City', value: user.city || 'N/A', icon: 'city' },
+                    { label: 'State', value: user.state || 'N/A', icon: 'map' },
+                    { label: 'Country', value: user.country || 'N/A', icon: 'globe' },
+                    { label: 'Pincode', value: user.pincode || 'N/A', icon: 'map-pin' }
+                ]
+            },
+            {
+                group: 'Account Status',
+                fields: [
+                    { label: 'Status', value: user.isApproved ? 'Approved' : user.status === 'rejected' ? 'Rejected' : 'Pending', icon: 'info-circle' },
+                    { label: 'Email Verified', value: user.emailVerified ? 'Yes' : 'No', icon: 'envelope-open-text' },
+                    { label: 'Created At', value: user.createdAt ? formatDate(user.createdAt) : 'N/A', icon: 'calendar-plus' },
+                    { label: 'Approved At', value: user.approvedAt ? formatDate(user.approvedAt) : 'Not approved yet', icon: 'check-circle' },
+                    { label: 'Last Login', value: user.lastLogin ? formatDate(user.lastLogin) : 'Never', icon: 'sign-in-alt' }
+                ]
+            }
+        ];
+        
+        // Additional details if available
+        if (user.education || user.occupation) {
+            userDetails.push({
+                group: 'Additional Information',
+                fields: [
+                    { label: 'Education', value: user.education || 'N/A', icon: 'graduation-cap' },
+                    { label: 'Occupation', value: user.occupation || 'N/A', icon: 'briefcase' },
+                    { label: 'Bio', value: user.bio || 'N/A', icon: 'file-alt', fullWidth: true }
+                ]
+            });
         }
         
-        currentViewingUserId = user.id || user.email;
+        // Generate user details HTML
+        let detailsHtml = `
+            <div class="row">
+                <div class="col-md-3 text-center mb-3">
+                    ${user.photoURL ? 
+                        `<img src="${user.photoURL}" class="rounded-circle img-thumbnail mb-2" width="120" height="120" alt="${displayName}">` : 
+                        `<div class="avatar-placeholder rounded-circle mx-auto mb-2" style="width: 120px; height: 120px; background-color: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 40px;">
+                            <i class="fas fa-user text-muted"></i>
+                        </div>`
+                    }
+                    <h5 class="mb-1">${displayName}</h5>
+                    <div class="badge bg-${user.isApproved ? 'success' : user.status === 'rejected' ? 'danger' : 'warning'} mb-2">
+                        ${user.isApproved ? 'Approved' : user.status === 'rejected' ? 'Rejected' : 'Pending Approval'}
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">User ID: ${user.id || 'N/A'}</small>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="user-details-accordion" id="userDetailsAccordion">
+        `;
         
-        // Format user details with enhanced approval information
-        const userDetails = `
-            <div class="mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">${user.firstName} ${user.lastName}</h5>
-                    <span class="badge ${user.isApproved ? 'bg-success' : 'bg-warning'}">
-                        ${user.isApproved ? 'Approved' : 'Pending Approval'}
-                    </span>
-                </div>
-                
-                <div class="row g-2 mb-3">
-                    <div class="col-md-6">
-                        <div class="p-2 border rounded">
-                            <small class="text-muted d-block">Email</small>
-                            <strong>${user.email}</strong>
-                        </div>
+        // Add user details in accordion sections
+        userDetails.forEach((section, index) => {
+            const sectionId = `section-${index}`;
+            const isFirst = index === 0;
+            
+            detailsHtml += `
+                <div class="card mb-2">
+                    <div class="card-header p-0" id="heading-${sectionId}">
+                        <h6 class="mb-0">
+                            <button class="btn btn-link btn-block text-left p-3 d-flex justify-content-between align-items-center" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse-${sectionId}" 
+                                    aria-expanded="${isFirst ? 'true' : 'false'}" 
+                                    aria-controls="collapse-${sectionId}">
+                                <span><i class="fas fa-${section.icon || 'info-circle'} me-2"></i>${section.group}</span>
+                                <i class="fas fa-chevron-${isFirst ? 'up' : 'down'} transition"></i>
+                            </button>
+                        </h6>
                     </div>
-                    <div class="col-md-6">
-                        <div class="p-2 border rounded">
-                            <small class="text-muted d-block">Phone</small>
-                            <strong>${user.phone || 'N/A'}</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-2 border rounded">
-                            <small class="text-muted d-block">Gender</small>
-                            <strong>${user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : 'Not specified'}</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-2 border rounded">
-                            <small class="text-muted d-block">City</small>
-                            <strong>${user.city || 'N/A'}</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-2 border rounded">
-                            <small class="text-muted d-block">Date of Birth</small>
-                            <strong>${user.dob ? new Date(user.dob).toLocaleDateString() : 'N/A'}</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-2 border rounded">
-                            <small class="text-muted d-block">Registered On</small>
-                            <strong>${new Date(user.createdAt).toLocaleString()}</strong>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="approval-details p-3 bg-light rounded">
-                    <h6 class="border-bottom pb-2 mb-3">Approval Information</h6>
-                    <div class="row g-2">
-                        <div class="col-12">
-                            <small class="text-muted d-block">Status</small>
-                            <strong>${user.isApproved ? 'Approved' : 'Pending Approval'}</strong>
-                        </div>
-                        ${user.isApproved ? `
-                            <div class="col-md-6">
-                                <small class="text-muted d-block">Approved By</small>
-                                <strong>${user.approvedBy || 'System Administrator'}</strong>
+                    <div id="collapse-${sectionId}" 
+                         class="collapse ${isFirst ? 'show' : ''}" 
+                         aria-labelledby="heading-${sectionId}" 
+                         data-bs-parent="#userDetailsAccordion">
+                        <div class="card-body">
+                            <div class="row">
+            `;
+            
+            section.fields.forEach(field => {
+                const fieldClass = field.fullWidth ? 'col-12' : 'col-md-6';
+                detailsHtml += `
+                    <div class="${fieldClass} mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-2 text-muted" style="width: 24px;">
+                                <i class="fas fa-${field.icon || 'circle'} fa-fw"></i>
                             </div>
-                            <div class="col-md-6">
-                                <small class="text-muted d-block">Approval Date</small>
-                                <strong>${user.approvedAt ? new Date(user.approvedAt).toLocaleString() : 'N/A'}</strong>
+                            <div>
+                                <div class="text-muted small">${field.label}</div>
+                                <div class="fw-medium">${field.value || 'N/A'}</div>
                             </div>
-                        ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            detailsHtml += `
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>`;
+            `;
+        });
         
-        userDetailsContent.innerHTML = userDetails;
+        // Close the accordion and main container
+        detailsHtml += `
+                    </div>
+                </div>
+            </div>
+            <style>
+                .user-details-accordion .btn-link {
+                    color: #495057;
+                    text-decoration: none;
+                    width: 100%;
+                    text-align: left;
+                }
+                .user-details-accordion .btn-link:hover {
+                    color: #0d6efd;
+                }
+                .user-details-accordion .card-header {
+                    background-color: #f8f9fa;
+                    border-bottom: 1px solid rgba(0,0,0,.125);
+                }
+                .user-details-accordion .transition {
+                    transition: transform 0.3s ease;
+                }
+                .user-details-accordion .collapsed .transition {
+                    transform: rotate(0deg);
+                }
+                .user-details-accordion .transition {
+                    transform: rotate(180deg);
+                }
+            </style>
+        `;
         
-        // Show/hide buttons based on approval status
-        if (user.isApproved) {
-            approveUserBtn.classList.add('d-none');
-            rejectUserBtn.textContent = 'Deactivate';
-        } else {
-            approveUserBtn.classList.remove('d-none');
-            rejectUserBtn.textContent = 'Reject';
+        // Update modal content
+        userDetailsContent.innerHTML = detailsHtml;
+        
+        // Update modal title
+        const modalTitle = document.querySelector('#userApprovalModal .modal-title');
+        if (modalTitle) {
+            modalTitle.textContent = `User: ${displayName}`;
         }
         
+        // Update button states based on user status
+        if (approveUserBtn) {
+            approveUserBtn.disabled = user.isApproved;
+            approveUserBtn.innerHTML = user.isApproved ? 
+                '<i class="fas fa-check-circle me-1"></i> Already Approved' : 
+                '<i class="fas fa-check-circle me-1"></i> Approve User';
+            approveUserBtn.className = user.isApproved ? 'btn btn-success' : 'btn btn-outline-success';
+        }
+        
+        if (rejectUserBtn) {
+            rejectUserBtn.disabled = user.status === 'rejected';
+            rejectUserBtn.innerHTML = user.status === 'rejected' ? 
+                '<i class="fas fa-times-circle me-1"></i> User Rejected' : 
+                '<i class="fas fa-times-circle me-1"></i> Reject User';
+            rejectUserBtn.className = user.status === 'rejected' ? 'btn btn-secondary' : 'btn btn-outline-danger';
+        }
+        
+        // Show the modal
         userApprovalModal.show();
     }
     
     // Approve user
-    function approveUser() {
-        if (!currentViewingUserId) return;
+    async function approveUser() {
+        console.log('Approve button clicked');
+        console.log('Current viewing user ID:', currentViewingUserId);
+        if (!currentViewingUserId) {
+            console.error('No user ID set for approval');
+            return;
+        }
         
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const userIndex = users.findIndex(u => (u.id === currentViewingUserId) || (u.email === currentViewingUserId));
-        
-        if (userIndex !== -1) {
-            users[userIndex].isApproved = true;
-            users[userIndex].approvedAt = new Date().toISOString();
-            users[userIndex].approvedBy = 'admin'; // In a real app, this would be the admin's ID
+        try {
+            // Update user's approval status in Firestore
+            const userRef = doc(db, 'users', currentViewingUserId);
+            await updateDoc(userRef, {
+                isApproved: true,
+                status: 'approved',
+                approvedAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
             
-            localStorage.setItem('users', JSON.stringify(users));
+            // Update the UI
+            const userRow = document.querySelector(`tr[data-user-id="${currentViewingUserId}"]`);
+            if (userRow) {
+                userRow.querySelector('.status-badge').textContent = 'Approved';
+                userRow.querySelector('.status-badge').className = 'badge bg-success';
+                
+                // Remove from pending users table if it exists
+                if (pendingUsersTableBody && userRow.closest('tbody') === pendingUsersTableBody) {
+                    userRow.remove();
+                }
+            }
             
-            // Show success message and reload
-            alert('User approved successfully!');
+            // Close the modal
             userApprovalModal.hide();
-            loadUsers();
             
-            // In a real app, you would send an email notification here
+            // Show success message
+            showMessage('User approved successfully!', 'success');
+            
+            // Reload users to update the lists
+            loadUsers();
+        } catch (error) {
+            console.error('Error approving user:', error);
+            showMessage('Failed to approve user. Please try again.', 'error');
         }
     }
     
     // Reject/Deactivate user
-    function rejectUser() {
-        if (!currentViewingUserId) return;
+    async function rejectUser() {
+        console.log('Reject button clicked');
+        console.log('Current viewing user ID:', currentViewingUserId);
+        if (!currentViewingUserId) {
+            console.error('No user ID set for rejection');
+            return;
+        }
         
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const userIndex = users.findIndex(u => (u.id === currentViewingUserId) || (u.email === currentViewingUserId));
+        // Confirm before rejecting
+        if (!confirm('Are you sure you want to reject this user? They will not be able to log in until approved by an admin.')) {
+            return;
+        }
         
-        if (userIndex !== -1) {
-            const user = users[userIndex];
-            const action = user.isApproved ? 'deactivate' : 'reject';
+        try {
+            // Update user's status in Firestore
+            const userRef = doc(db, 'users', currentViewingUserId);
+            await updateDoc(userRef, {
+                isApproved: false,
+                status: 'rejected',
+                rejectedAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
             
-            if (confirm(`Are you sure you want to ${action} this user?`)) {
-                if (action === 'reject') {
-                    // Remove user if rejecting during approval
-                    users.splice(userIndex, 1);
-                } else {
-                    // Deactivate user if already approved
-                    users[userIndex].isApproved = false;
+            // Update the UI
+            const userRow = document.querySelector(`tr[data-user-id="${currentViewingUserId}"]`);
+            if (userRow) {
+                const statusBadge = userRow.querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.textContent = 'Rejected';
+                    statusBadge.className = 'badge bg-danger';
                 }
                 
-                localStorage.setItem('users', JSON.stringify(users));
-                
-                // Show success message and reload
-                alert(`User ${action}ed successfully!`);
-                userApprovalModal.hide();
-                loadUsers();
+                // Remove from pending users table if it exists
+                if (pendingUsersTableBody && userRow.closest('tbody') === pendingUsersTableBody) {
+                    userRow.remove();
+                }
             }
+            
+            // Close the modal
+            userApprovalModal.hide();
+            
+            // Show success message
+            showMessage('User rejected successfully!', 'success');
+            
+            // Reload users to update the lists
+            loadUsers();
+        } catch (error) {
+            console.error('Error rejecting user:', error);
+            showMessage('Failed to reject user. Please try again.', 'error');
         }
     }
     
     // Event Listeners
+    console.log('Setting up event listeners...');
+    console.log('Approve button element:', approveUserBtn);
+    console.log('Reject button element:', rejectUserBtn);
+    
     if (approveUserBtn) {
-        approveUserBtn.addEventListener('click', approveUser);
+        console.log('Adding click listener to approve button');
+        approveUserBtn.addEventListener('click', function(e) {
+            console.log('Approve button clicked (new listener)');
+            approveUser();
+        });
+    } else {
+        console.error('Approve button not found!');
     }
     
     if (rejectUserBtn) {
-        rejectUserBtn.addEventListener('click', rejectUser);
+        console.log('Adding click listener to reject button');
+        rejectUserBtn.addEventListener('click', function(e) {
+            console.log('Reject button clicked (new listener)');
+            rejectUser();
+        });
+    } else {
+        console.error('Reject button not found!');
     }
     
     // Initialize the dashboard with the active section

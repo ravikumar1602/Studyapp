@@ -1,6 +1,14 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    sendPasswordResetEmail, 
+    onAuthStateChanged, 
+    setPersistence, 
+    browserSessionPersistence, 
+    browserLocalPersistence 
+} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 import { 
     getFirestore, 
     doc, 
@@ -34,15 +42,77 @@ document.addEventListener('DOMContentLoaded', function() {
     const signInBtn = document.querySelector('.btn-login');
     const forgotPasswordLink = document.getElementById('forgotPassword');
     
-    // Focus on email field when page loads
-    emailInput.focus();
+    // Set persistence to LOCAL to keep user logged in until they sign out
+    setPersistence(auth, browserLocalPersistence)
+        .then(() => {
+            console.log('Persistence set to LOCAL');
+            // Check if user is already logged in
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                    unsubscribe();
+                    resolve(user);
+                });
+            });
+        })
+        .then((user) => {
+            if (user) {
+                // User is signed in, redirect to dashboard
+                redirectToDashboard(user);
+            } else {
+                // No user is signed in, focus on email field
+                if (emailInput) emailInput.focus();
+            }
+        })
+        .catch((error) => {
+            console.error('Error setting persistence:', error);
+            if (emailInput) emailInput.focus();
+        });
     
+    // Function to redirect to dashboard based on user role
+    async function redirectToDashboard(user) {
+        try {
+            // Get user document from Firestore
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                
+                // Check if user is approved
+                if (!userData.isApproved) {
+                    sessionStorage.setItem('pendingApprovalEmail', userData.email || user.email);
+                    window.location.href = 'pending-approval.html';
+                    return;
+                }
+                
+                // Redirect based on role
+                if (userData.role === 'admin') {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } else {
+                console.error('User document not found');
+                showMessage('User information not found. Please contact support.', 'error');
+                await auth.signOut();
+            }
+        } catch (error) {
+            console.error('Error redirecting user:', error);
+            showMessage('An error occurred. Please try again.', 'error');
+            await auth.signOut();
+        }
+    }
+
     // Function to handle login
     async function handleLogin(e) {
         e.preventDefault();
         
         const email = emailInput.value.trim();
         const password = passwordInput.value;
+        
+        // Show loading state
+        const loginBtn = loginForm.querySelector('button[type="submit"]');
+        const originalBtnText = loginBtn.innerHTML;
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Signing in...';
         
         if (!email) {
             showMessage('Please enter your email', 'error');
@@ -65,16 +135,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
-            // Check if user is approved in Firestore
+            // Check if user exists in Firestore
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 
+                // Check if user is approved
                 if (!userData.isApproved) {
-                    // Store user email in session storage to show on pending approval page
+                    // Store email in session storage for the pending approval page
                     sessionStorage.setItem('pendingApprovalEmail', userData.email || user.email);
+                    
+                    // Sign out the user since they're not approved yet
                     await auth.signOut();
+                    
+                    // Reset button state
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = originalBtnText;
+                    
                     // Redirect to pending approval page
                     window.location.href = 'pending-approval.html';
                     return;
@@ -96,28 +174,38 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = 'dashboard.html';
                 }
             } else {
+                // User not found in Firestore
                 await auth.signOut();
-                showMessage('User data not found. Please contact support.', 'error');
+                showMessage('User not found. Please contact support.', 'error');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = originalBtnText;
             }
         } catch (error) {
             console.error('Login error:', error);
-            let errorMessage = 'Login failed. Please check your credentials and try again.';
+            let errorMessage = 'Login failed. Please try again.';
             
             if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                errorMessage = 'Invalid email or password. Please try again.';
+                errorMessage = 'Invalid email or password.';
             } else if (error.code === 'auth/too-many-requests') {
-                errorMessage = 'Too many failed login attempts. Please try again later or reset your password.';
+                errorMessage = 'Too many failed attempts. Please try again later or reset your password.';
             } else if (error.code === 'auth/user-disabled') {
                 errorMessage = 'This account has been disabled. Please contact support.';
             }
             
             showMessage(errorMessage, 'error');
+            
+            // Reset button state
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = originalBtnText;
+            
+            // Focus on password field
+            passwordInput.value = '';
+            passwordInput.focus();
         } finally {
             // Re-enable the button
             signInBtn.disabled = false;
             signInBtn.innerHTML = 'Sign In';
         }
-        
         if (!user) {
             showMessage('An error occurred. Please try again.', 'error');
             return;

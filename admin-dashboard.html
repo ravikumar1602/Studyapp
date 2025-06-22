@@ -48,6 +48,11 @@
                         </a>
                     </li>
                     <li>
+                        <a class="nav-link sign-out-btn" href="#" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </li>
+                    <li>
                         <a href="#content">
                             <i class="fas fa-file-alt"></i>
                             <span>Content</span>
@@ -581,19 +586,65 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
-    <!-- Firebase Config -->
-    <script src="firebase-config.js" type="module"></script>
-    
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7tdxFyTOWOqaAxJptAq5vZm92oz1v05M",
+            authDomain: "study-portal-bef7a.firebaseapp.com",
+            databaseURL: "https://study-portal-bef7a-default-rtdb.firebaseio.com",
+            projectId: "study-portal-bef7a",
+            storageBucket: "study-portal-bef7a.appspot.com",
+            messagingSenderId: "335677529543",
+            appId: "1:335677529543:web:0e95959d30b3b3daf4cde2"
+        };
+
+        // Initialize Firebase
+        window.app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+    </script>
+    
+    <!-- Auth and Session Management -->
+    <script type="module" src="auth-guard.js"></script>
+    <script type="module" src="admin-auth.js"></script>
+    
     <!-- Custom JS -->
-    <script type="module" src="admin-script.js"></script>
-    <script src="admin-users.js"></script>
-    <script src="admin-videos.js"></script>
+    <script type="module" src="admin-users.js"></script>
+    <script type="module" src="admin-videos.js"></script>
+    
+    <!-- Initialize auth check -->
+    <script type="module">
+        import { checkAuthState } from './auth-guard.js';
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const user = await checkAuthState('admin');
+                if (!user) return;
+                
+                // Update UI with user info
+                const userInfoElements = document.querySelectorAll('[data-user-info]');
+                userInfoElements.forEach(element => {
+                    const field = element.getAttribute('data-user-info');
+                    if (field === 'name') {
+                        element.textContent = user.displayName || user.firstName || user.email.split('@')[0];
+                    } else if (field === 'email') {
+                        element.textContent = user.email;
+                    } else if (field === 'role') {
+                        element.textContent = user.role || 'admin';
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Auth initialization error:', error);
+            }
+        });
+    </script>
 </body>
 </html>
