@@ -588,8 +588,22 @@
                 item.classList.remove('active');
                 if (item.dataset.lessonId === lessonId) {
                     item.classList.add('active');
+                    // Scroll to active lesson in the list
+                    if (isMobile && window.innerWidth < 992) {
+                        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
                 }
             });
+            
+            // Hide lesson list on mobile after selection
+            if (isMobile && window.innerWidth < 992) {
+                const lessonList = document.getElementById('lessonListContainer');
+                if (lessonList) {
+                    setTimeout(() => {
+                        lessonList.style.display = 'none';
+                    }, 300);
+                }
+            }
             
             // Here you would typically load the video player with the lesson content
             // For now, we'll just show a placeholder
