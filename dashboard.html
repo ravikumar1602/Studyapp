@@ -432,7 +432,7 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getDatabase, ref, get, child, onValue } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
+        import { getDatabase, ref, get, onValue } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
         
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -448,139 +448,325 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        
+        // Make Firebase functions available globally
+        window.firebaseDb = {
+            ref,
+            get,
+            onValue,
+            database
+        };
+        
+        console.log('Firebase initialized successfully');
     </script>
     
     <!-- User Menu Script -->
     <script src="js/user-menu.js"></script>
     
     <script type="module">
-        // Function to load user's enrolled courses from Firebase
-        async function loadEnrolledCourses(userId) {
+        // Function to load course player in the main content area
+        window.loadCoursePlayer = async function(courseId) {
             try {
-                const userEnrollmentsRef = ref(database, `users/${userId}/enrollments`);
+                console.log('Loading course player for course:', courseId);
+                const mainContent = document.querySelector('.main-content');
                 
-                // Listen for changes in user's enrollments
-                onValue(userEnrollmentsRef, async (snapshot) => {
-                    const enrollments = [];
-                    if (snapshot.exists()) {
-                        snapshot.forEach((childSnapshot) => {
-                            enrollments.push({
-                                id: childSnapshot.key,
-                                ...childSnapshot.val()
-                            });
+                // Show loading state
+                mainContent.innerHTML = `
+                    <div class="container-fluid p-0">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading course player...</p>
+                        </div>
+                    </div>`;
+                
+                // Fetch course details
+                const { ref, get, database } = window.firebaseDb;
+                const courseRef = ref(database, `courses/${courseId}`);
+                const snapshot = await get(courseRef);
+                
+                if (!snapshot.exists()) {
+                    throw new Error('Course not found');
+                }
+                
+                const course = snapshot.val();
+                
+                // Fetch course content/lessons
+                const lessonsRef = ref(database, `courses/${courseId}/lessons`);
+                const lessonsSnapshot = await get(lessonsRef);
+                const lessons = [];
+                
+                if (lessonsSnapshot.exists()) {
+                    lessonsSnapshot.forEach((childSnapshot) => {
+                        lessons.push({
+                            id: childSnapshot.key,
+                            ...childSnapshot.val()
                         });
-                    }
-                    
-                    // Update enrolled courses count
-                    document.getElementById('enrolledCoursesCount').textContent = enrollments.length;
-                    
-                    // Update change percentage (simplified for now)
-                    const changeElement = document.getElementById('enrolledChange');
-                    changeElement.parentElement.className = 'card-change';
-                    changeElement.parentElement.innerHTML = `Enrolled in ${enrollments.length} courses`;
-                    
-                    // Get course details for each enrollment
-                    const coursesContainer = document.getElementById('myCourses');
-                    
-                    if (enrollments.length > 0) {
-                        let coursesHTML = '';
-                        
-                        // Get course details for each enrolled course
-                        let displayedCourses = 0;
-                        for (const enrollment of enrollments) {
-                            if (displayedCourses >= 4) break; // Show max 4 courses
-                            
-                            try {
-                                const courseRef = ref(database, `courses/${enrollment.courseId}`);
-                                const courseSnapshot = await get(courseRef);
-                                
-                                if (courseSnapshot.exists()) {
-                                    const course = courseSnapshot.val();
-                                    
-                                    // Skip inactive courses
-                                    if (course.status === 'inactive') {
-                                        console.log(`Skipping inactive course: ${course.name || enrollment.courseId}`);
-                                        continue;
-                                    }
-                                    
-                                    displayedCourses++;
-                                    const progress = enrollment.progress || 0;
-                                    const lastAccessed = enrollment.lastAccessed ? new Date(enrollment.lastAccessed).toLocaleDateString() : 'Not started';
-                                
-                                    coursesHTML += `
-                                        <div class="col-md-6">
-                                            <div class="card mb-3">
-                                                <div class="card-body">
-                                                    <div class="d-flex">
-                                                        <div class="flex-shrink-0 me-3" style="width: 80px;">
-                                                            <img src="${course.image || 'https://via.placeholder.com/100'}" 
-                                                                class="img-fluid rounded" alt="${course.name || 'Course'}">
-                                                        </div>
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="card-title mb-1">${course.name || 'Untitled Course'}</h6>
-                                                            <p class="text-muted small mb-2">${course.instructor || 'Instructor'}</p>
-                                                            <div class="progress mb-2" style="height: 6px;">
-                                                                <div class="progress-bar" role="progressbar" 
-                                                                    style="width: ${progress}%" 
-                                                                    aria-valuenow="${progress}" 
-                                                                    aria-valuemin="0" 
-                                                                    aria-valuemax="100"></div>
-                                                            </div>
-                                                            <div class="d-flex justify-content-between align-items-center">
-                                                                <small class="text-muted">${progress}% Complete</small>
-                                                                <a href="course-player.html?courseId=${enrollment.courseId}" class="btn btn-sm btn-outline-primary">
-                                                                    ${progress > 0 ? 'Continue' : 'Start'}
-                                                                </a>
-                                                            </div>
-                                                            <small class="text-muted d-block mt-1">Last accessed: ${lastAccessed}</small>
-                                                        </div>
-                                                    </div>
+                    });
+                }
+                
+                // Sort lessons by order or title
+                lessons.sort((a, b) => (a.order || 0) - (b.order || 0) || a.title.localeCompare(b.title));
+                
+                // Render course player with video on the left and lessons on the right
+                mainContent.innerHTML = `
+                    <div class="container-fluid p-0 h-100">
+                        <div class="row g-0 h-100">
+                            <!-- Video Player (Left Side) -->
+                            <div class="col-lg-8 col-xl-9">
+                                <div class="d-flex flex-column h-100">
+                                    <!-- Video Player -->
+                                    <div class="ratio ratio-16x9 bg-dark">
+                                        <div id="videoPlayer" class="d-flex align-items-center justify-content-center text-white">
+                                            ${lessons.length > 0 ? `
+                                                <div class="text-center">
+                                                    <i class="fas fa-play-circle display-4 mb-3"></i>
+                                                    <p>Click on a lesson to start watching</p>
                                                 </div>
-                                            </div>
+                                            ` : 'No lessons available for this course'}
                                         </div>
-                                    `;
-                                } else {
-                                    console.error(`Course not found: ${enrollment.courseId}`);
-                                }
-                            } catch (error) {
-                                console.error(`Error loading course ${enrollment.courseId}:`, error);
-                            }
-                        }
-                        
-                        coursesContainer.innerHTML = coursesHTML || `
-                            <div class="col-12">
-                                <div class="text-center py-4">
-                                    <i class="fas fa-exclamation-circle fa-3x text-warning mb-3"></i>
-                                    <p class="text-muted mb-0">Unable to load course details.</p>
+                                    </div>
+                                    
+                                    <!-- Lesson Content -->
+                                    <div class="p-4 flex-grow-1" id="lessonContent" style="overflow-y: auto; max-height: calc(100vh - 70px - 56.25vw);">
+                                        ${lessons.length > 0 ? `
+                                            <h4>${lessons[0].title || 'Untitled Lesson'}</h4>
+                                            ${lessons[0].content ? `<div class="mt-3">${lessons[0].content}</div>` : ''}
+                                        ` : ''}
+                                    </div>
                                 </div>
                             </div>
-                        `;
-                    } else {
-                        coursesContainer.innerHTML = `
-                            <div class="col-12">
-                                <div class="text-center py-4">
-                                    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted mb-0">You haven't enrolled in any courses yet.</p>
-                                    <a href="courses.html" class="btn btn-primary mt-3">Browse Courses</a>
+                            
+                            <!-- Lesson List (Right Side) -->
+                            <div class="col-lg-4 col-xl-3 border-start" style="height: calc(100vh - 70px); overflow-y: auto;">
+                                <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">${course.name || 'Course Content'}</h5>
+                                    <button onclick="window.location.href='dashboard.html'" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                                    </button>
+                                </div>
+                                <div class="list-group list-group-flush" id="lessonList">
+                                    ${lessons.map((lesson, index) => `
+                                        <a href="#" class="list-group-item list-group-item-action ${index === 0 ? 'active' : ''}" 
+                                           data-lesson-id="${lesson.id}" onclick="playLesson('${courseId}', '${lesson.id}')">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">${lesson.title || 'Untitled Lesson'}</h6>
+                                                ${lesson.duration ? `<small>${lesson.duration} min</small>` : ''}
+                                            </div>
+                                            ${lesson.description ? `<small class="text-muted">${lesson.description}</small>` : ''}
+                                        </a>
+                                    `).join('')}
                                 </div>
                             </div>
-                        `;
-                    }
-                }, {
-                    onlyOnce: false // Update in real-time if data changes
-                });
+                        </div>
+                    </div>`;
+                
+                // Store current course ID for reference
+                window.currentCourseId = courseId;
                 
             } catch (error) {
-                console.error('Error loading enrolled courses:', error);
-                const coursesContainer = document.getElementById('myCourses');
-                coursesContainer.innerHTML = `
-                    <div class="col-12">
+                console.error('Error loading course player:', error);
+                const mainContent = document.querySelector('.main-content');
+                mainContent.innerHTML = `
+                    <div class="container-fluid p-0">
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-circle me-2"></i>
-                            Error loading courses. Please try again later.
+                            Error loading course. Please try again later.
+                            <button onclick="loadEnrolledCourses('${window.currentUserId}')" class="btn btn-sm btn-outline-danger ms-3">
+                                Back to Dashboard
+                            </button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
+            }
+        };
+        
+        // Function to play a specific lesson
+        window.playLesson = function(courseId, lessonId) {
+            // Update active state in the lesson list
+            document.querySelectorAll('#lessonList .list-group-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.lessonId === lessonId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Here you would typically load the video player with the lesson content
+            // For now, we'll just show a placeholder
+            const videoPlayer = document.getElementById('videoPlayer');
+            const lesson = document.querySelector(`[data-lesson-id="${lessonId}"]`);
+            const lessonTitle = lesson ? lesson.querySelector('h6').textContent : 'Lesson';
+            
+            videoPlayer.innerHTML = `
+                <div class="text-center p-4">
+                    <i class="fas fa-play-circle display-1 text-primary mb-3"></i>
+                    <h4>Now Playing: ${lessonTitle}</h4>
+                    <p class="text-muted">Video player would be embedded here</p>
+                </div>`;
+            
+            // Update lesson content
+            const lessonContent = document.getElementById('lessonContent');
+            if (lessonContent) {
+                lessonContent.innerHTML = `
+                    <h4>${lessonTitle}</h4>
+                    <p class="text-muted">Lesson content would be displayed here.</p>
+                    <div class="mt-4">
+                        <button class="btn btn-primary">Mark as Completed</button>
+                        <button class="btn btn-outline-secondary ms-2">Next Lesson</button>
+                    </div>`;
+            }
+            
+            // Scroll to top of the player
+            videoPlayer.scrollIntoView({ behavior: 'smooth' });
+        };
+        
+        // Function to load user's enrolled courses from Firebase
+        window.loadEnrolledCourses = async function(userId) {
+            // Store user ID globally for use in other functions
+            window.currentUserId = userId || window.currentUserId;
+            try {
+                console.log('Loading enrolled courses for user:', userId);
+                const { ref, get, onValue, database } = window.firebaseDb;
+                
+                const userEnrollmentsRef = ref(database, `users/${userId}/enrolledCourses`);
+                console.log('Fetching from path:', `users/${userId}/enrolledCourses`);
+                
+                const snapshot = await get(userEnrollmentsRef);
+                console.log('Enrollments snapshot:', snapshot);
+                
+                if (!snapshot.exists() || Object.keys(snapshot.val()).length === 0) {
+                    console.log('No enrolled courses found for user');
+                    const coursesContainer = document.getElementById('myCourses');
+                    coursesContainer.innerHTML = `
+                        <div class="col-12">
+                            <div class="text-center py-4">
+                                <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-0">You haven't enrolled in any courses yet.</p>
+                                <a href="all-courses.html" class="btn btn-primary mt-3">Browse Courses</a>
+                            </div>
+                        </div>`;
+                    return;
+                }
+                
+                const enrolledCourses = [];
+                const coursePromises = [];
+                
+                // Get details for each enrolled course
+                Object.entries(snapshot.val()).forEach(([courseId, enrollment]) => {
+                    const courseRef = ref(database, `courses/${courseId}`);
+                    const coursePromise = get(courseRef).then(courseSnapshot => {
+                        if (courseSnapshot.exists()) {
+                            enrolledCourses.push({
+                                id: courseId,
+                                ...courseSnapshot.val(),
+                                progress: enrollment.progress || 0,
+                                lastAccessed: enrollment.lastAccessed
+                            });
+                        }
+                    }).catch(error => {
+                        console.error(`Error loading course ${courseId}:`, error);
+                    });
+                    coursePromises.push(coursePromise);
+                });
+                
+                // Wait for all course details to load
+                await Promise.all(coursePromises);
+                
+                // Sort by last accessed (most recent first)
+                enrolledCourses.sort((a, b) => 
+                    new Date(b.lastAccessed || 0) - new Date(a.lastAccessed || 0)
+                );
+                
+                // Update enrolled courses count
+                document.getElementById('enrolledCoursesCount').textContent = enrolledCourses.length;
+                
+                // Update change percentage
+                const changeElement = document.getElementById('enrolledChange');
+                changeElement.parentElement.className = 'card-change';
+                changeElement.innerHTML = `Enrolled in ${enrolledCourses.length} courses`;
+                
+                // Get course details for each enrollment
+                const coursesContainer = document.getElementById('myCourses');
+                
+                if (enrolledCourses.length > 0) {
+                    let coursesHTML = '';
+                    let displayedCourses = 0;
+                    
+                    // Display up to 4 most recent courses
+                    enrolledCourses.slice(0, 4).forEach(course => {
+                        if (displayedCourses >= 4) return;
+                        displayedCourses++;
+                        
+                        coursesHTML += `
+                            <div class="col-12 mb-3">
+                                <div class="course-card d-flex">
+                                    <div class="course-thumbnail" style="background-image: url('${course.thumbnail || 'img/course-placeholder.jpg'}')"></div>
+                                    <div class="course-details flex-grow-1">
+                                        <h6 class="course-title mb-1">${course.name || course.title || 'Untitled Course'}</h6>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <small class="text-muted me-3">
+                                                <i class="fas fa-chalkboard-teacher me-1"></i> ${course.instructor || 'Instructor'}
+                                            </small>
+                                            <small class="text-warning">
+                                                <i class="fas fa-star"></i> ${course.rating || '4.5'}
+                                            </small>
+                                            ${course.duration ? `
+                                                <small class="text-muted ms-3">
+                                                    <i class="far fa-clock me-1"></i> ${course.duration} ${course.durationUnit || 'hrs'}
+                                                </small>
+                                            ` : ''}
+                                        </div>
+                                        <div class="progress mb-2" style="height: 6px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                style="width: ${course.progress || 0}%" 
+                                                aria-valuenow="${course.progress || 0}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">${course.progress || 0}% Complete</small>
+                                            <button onclick="loadCoursePlayer('${course.id}')" class="btn btn-sm btn-outline-primary">
+                                                ${course.progress > 0 ? 'Continue' : 'Start Learning'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                    
+                    // Add view all button if there are more than 4 courses
+                    if (enrolledCourses.length > 4) {
+                        coursesHTML += `
+                            <div class="col-12 text-center mt-3">
+                                <a href="my-courses.html" class="btn btn-sm btn-outline-primary">View All ${enrolledCourses.length} Courses</a>
+                            </div>`;
+                    }
+                    
+                    coursesContainer.innerHTML = coursesHTML;
+                } else {
+                    // No courses found
+                    coursesContainer.innerHTML = `
+                        <div class="col-12">
+                            <div class="text-center py-4">
+                                <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-0">You haven't enrolled in any courses yet.</p>
+                                <a href="all-courses.html" class="btn btn-primary mt-3">Browse Courses</a>
+                            </div>
+                        </div>`;
+                }
+            } catch (error) {
+                console.error('Error in loadEnrolledCourses:', error);
+                const coursesContainer = document.getElementById('myCourses');
+                if (coursesContainer) {
+                    coursesContainer.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Error loading courses. Please try again later.
+                            </div>
+                        </div>`;
+                }
             }
         }
         
@@ -593,8 +779,12 @@
                 return;
             }
             
+            console.log('Current user:', currentUser);
+            
             // Load enrolled courses for the current user
-            loadEnrolledCourses(currentUser.uid || currentUser.id);
+            const userId = currentUser.uid || currentUser.id;
+            console.log('Loading courses for user ID:', userId);
+            loadEnrolledCourses(userId);
 
             // Set user info
             const displayName = currentUser.displayName || 'User';
