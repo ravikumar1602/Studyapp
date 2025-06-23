@@ -267,13 +267,17 @@
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
+            <a href="live-classes.html" class="nav-link">
+                <i class="fas fa-video"></i>
+                <span>Live Classes</span>
+            </a>
             <a href="my-courses.html" class="nav-link">
                 <i class="fas fa-book"></i>
                 <span>My Courses</span>
             </a>
-            <a href="progress.html" class="nav-link">
-                <i class="fas fa-chart-line"></i>
-                <span>Progress</span>
+            <a href="all-courses.html" class="nav-link">
+                <i class="fas fa-book-open"></i>
+                <span>All Courses</span>
             </a>
             <a href="certificates.html" class="nav-link">
                 <i class="fas fa-certificate"></i>
@@ -524,11 +528,15 @@
             }
 
             // Set user info
-            document.getElementById('userName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+            const displayName = currentUser.displayName || 'User';
+            document.getElementById('userName').textContent = displayName;
             
             // Set user avatar with initials
             const userAvatar = document.getElementById('userAvatar');
-            const initials = (currentUser.firstName ? currentUser.firstName[0] : '') + (currentUser.lastName ? currentUser.lastName[0] : '');
+            const nameParts = displayName.split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+            const initials = (firstName[0] || '') + (lastName ? lastName[0] : '');
             userAvatar.textContent = initials || 'U';
             
             // Load user's enrolled courses
