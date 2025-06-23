@@ -300,180 +300,131 @@
                 <div class="course-content">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Course Content</h4>
+                            <h4>Video Classes</h4>
                         </div>
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    <span class="badge bg-primary me-2">${course.modules?.length || 0} Modules</span>
-                                    <span class="badge bg-secondary">${course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0} Lessons</span>
-                                </div>
-                                <div>
-                                    <span class="text-muted">Last updated: <span id="courseUpdated">Recently</span></span>
+                            <div id="videoList" class="list-group">
+                                <!-- Videos will be dynamically inserted here -->
+                                <div class="text-center py-4 text-muted" id="noVideosMessage">
+                                    <i class="fas fa-video-slash fa-3x mb-3"></i>
+                                    <p>No video classes available yet</p>
                                 </div>
                             </div>
-                            <div id="courseModules" class="modules-list">
-                                <!-- Modules will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h5 class="mb-0">What You'll Learn</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul id="whatYoullLearn" class="list-unstyled">
-                                <!-- Learning objectives will be loaded here -->
-                                <li><i class="fas fa-check text-success me-2"></i>Key concepts and skills</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Practical applications</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Real-world examples</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h5 class="mb-0">Requirements</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul id="courseRequirements" class="list-unstyled">
-                                <!-- Requirements will be loaded here -->
-                                <li><i class="fas fa-info-circle text-info me-2"></i>Basic knowledge of the subject</li>
-                                <li><i class="fas fa-info-circle text-info me-2"></i>Computer with internet access</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h5 class="mb-0">Course Details</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled">
-                                <li class="mb-2"><i class="far fa-clock me-2 text-primary"></i> Duration: <span id="courseDuration">N/A</span></li>
-                                <li class="mb-2"><i class="fas fa-signal me-2 text-primary"></i> Level: <span id="courseLevel">All Levels</span></li>
-                                <li class="mb-2"><i class="fas fa-users me-2 text-primary"></i> Students: <span id="enrolledStudents">0</span></li>
-                                <li class="mb-2"><i class="fas fa-star me-2 text-warning"></i> Rating: <span id="courseRating">0.0</span> <small class="text-muted" id="totalRatings">(0 ratings)</small></li>
-                                <li class="mb-2"><i class="far fa-calendar-alt me-2 text-primary"></i> <span id="courseCreated">Created: N/A</span></li>
-                                <li><i class="fas fa-sync-alt me-2 text-primary"></i> <span id="courseUpdated">Last updated: N/A</span></li>
-                            </ul>
                         </div>
                     </div>
 
                     <div class="card mt-4">
                         <div class="card-header">
                             <h4>About This Course</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="courseDescription">
+                            <p>Loading course description...</p>
                         </div>
-                        <div class="card-body">
-                            <div id="courseDescription">
-                                <p>Loading course description...</p>
-                            </div>
-                            
-                            <h5 class="mt-4">What You'll Learn</h5>
-                            <div class="row mt-3" id="learningOutcomes">
-                                <!-- Learning outcomes will be added by JavaScript -->
-                                <div class="col-md-6 mb-2">
-                                    <div class="d-flex align-items-start">
-                                        <i class="fas fa-check-circle text-success mt-1 me-2"></i>
-                                        <span>Loading learning outcomes...</span>
-                                    </div>
+                        
+                        <h5 class="mt-4">What You'll Learn</h5>
+                        <div class="row mt-3" id="learningOutcomes">
+                            <!-- Learning outcomes will be added by JavaScript -->
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                                    <span>Loading learning outcomes...</span>
                                 </div>
                             </div>
-                            
-                            <h5 class="mt-4">Course Content</h5>
-                            <div class="mt-3" id="courseModules">
-                                <!-- Modules and lessons will be added by JavaScript -->
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
+                        </div>
+                        
+                        <h5 class="mt-4">Course Content</h5>
+                        <div class="mt-3" id="courseModules">
+                            <!-- Modules and lessons will be added by JavaScript -->
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h4>Instructor</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-md-flex align-items-center">
-                                <img src="https://via.placeholder.com/120" alt="Instructor" class="rounded-circle me-4 mb-3 mb-md-0" id="instructorImage">
-                                <div>
-                                    <h5 id="instructorName">Loading...</h5>
-                                    <p class="text-muted mb-2" id="instructorTitle">Senior Instructor</p>
-                                    <div class="d-flex mb-3">
-                                        <div class="me-3">
-                                            <i class="fas fa-star text-warning"></i>
-                                            <span id="instructorRating">4.8</span> Instructor Rating
-                                        </div>
-                                        <div class="me-3">
-                                            <i class="fas fa-user-graduate text-primary"></i>
-                                            <span id="instructorStudents">0</span> Students
-                                        </div>
-                                        <div>
-                                            <i class="fas fa-play-circle text-info"></i>
-                                            <span id="instructorCourses">0</span> Courses
-                                        </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4>Instructor</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-md-flex align-items-center">
+                            <img src="https://via.placeholder.com/120" alt="Instructor" class="rounded-circle me-4 mb-3 mb-md-0" id="instructorImage">
+                            <div>
+                                <h5 id="instructorName">Loading...</h5>
+                                <p class="text-muted mb-2" id="instructorTitle">Senior Instructor</p>
+                                <div class="d-flex mb-3">
+                                    <div class="me-3">
+                                        <i class="fas fa-star text-warning"></i>
+                                        <span id="instructorRating">4.8</span> Instructor Rating
                                     </div>
-                                    <p class="mb-0" id="instructorBio">Loading instructor bio...</p>
+                                    <div class="me-3">
+                                        <i class="fas fa-user-graduate text-primary"></i>
+                                        <span id="instructorStudents">0</span> Students
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-play-circle text-info"></i>
+                                        <span id="instructorCourses">0</span> Courses
+                                    </div>
                                 </div>
+                                <p class="mb-0" id="instructorBio">Loading instructor bio...</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h4>Student Feedback</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-3 text-center mb-4 mb-md-0">
-                                    <div class="display-4 fw-bold text-primary" id="averageRating">0.0</div>
-                                    <div class="mb-2">
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="far fa-star text-warning"></i>
-                                    </div>
-                                    <div class="text-muted">Course Rating</div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4>Student Feedback</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center mb-4 mb-md-0">
+                                <div class="display-4 fw-bold text-primary" id="averageRating">0.0</div>
+                                <div class="mb-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="far fa-star text-warning"></i>
                                 </div>
-                                <div class="col-md-9">
-                                    <div class="mb-2 d-flex align-items-center">
-                                        <div class="text-nowrap me-2" style="width: 40px;">5 star</div>
-                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating5"></div>
-                                        </div>
-                                        <div class="text-muted" style="width: 30px; text-align: right;" id="rating5Percent">0%</div>
+                                <div class="text-muted">Course Rating</div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-2 d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">5 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating5"></div>
                                     </div>
-                                    <div class="mb-2 d-flex align-items-center">
-                                        <div class="text-nowrap me-2" style="width: 40px;">4 star</div>
-                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating4"></div>
-                                        </div>
-                                        <div class="text-muted" style="width: 30px; text-align: right;" id="rating4Percent">0%</div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating5Percent">0%</div>
+                                </div>
+                                <div class="mb-2 d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">4 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating4"></div>
                                     </div>
-                                    <div class="mb-2 d-flex align-items-center">
-                                        <div class="text-nowrap me-2" style="width: 40px;">3 star</div>
-                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating3"></div>
-                                        </div>
-                                        <div class="text-muted" style="width: 30px; text-align: right;" id="rating3Percent">0%</div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating4Percent">0%</div>
+                                </div>
+                                <div class="mb-2 d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">3 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating3"></div>
                                     </div>
-                                    <div class="mb-2 d-flex align-items-center">
-                                        <div class="text-nowrap me-2" style="width: 40px;">2 star</div>
-                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating2"></div>
-                                        </div>
-                                        <div class="text-muted" style="width: 30px; text-align: right;" id="rating2Percent">0%</div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating3Percent">0%</div>
+                                </div>
+                                <div class="mb-2 d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">2 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating2"></div>
                                     </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="text-nowrap me-2" style="width: 40px;">1 star</div>
-                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating1"></div>
-                                        </div>
-                                        <div class="text-muted" style="width: 30px; text-align: right;" id="rating1Percent">0%</div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating2Percent">0%</div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="text-nowrap me-2" style="width: 40px;">1 star</div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" id="rating1"></div>
                                     </div>
+                                    <div class="text-muted" style="width: 30px; text-align: right;" id="rating1Percent">0%</div>
                                 </div>
                             </div>
                         </div>
@@ -583,62 +534,29 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
-    
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Firebase Config -->
-    <script src="firebase-config.js"></script>
-    
+    <!-- Firebase SDK -->
     <script type="module">
-        // Import Firebase services
-        import { firestore, auth } from './firebase-config.js';
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+        import { getDatabase, ref, get, child } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
         
-        // Show loading state
-        function showLoading() {
-            const mainContent = document.querySelector('.main-content');
-            if (mainContent) {
-                mainContent.innerHTML = `
-                    <div class="text-center py-5 my-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-3">Loading course details...</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Show error state
-        function showError(message) {
-            const mainContent = document.querySelector('.main-content') || document.body;
-            mainContent.innerHTML = `
-                <div class="container my-5 py-5">
-                    <div class="alert alert-danger">
-                        <h4 class="alert-heading">Error Loading Course</h4>
-                        <p>${message || 'Failed to load course details. Please try again later.'}</p>
-                        <hr>
-                        <a href="courses.html" class="btn btn-outline-danger">Back to Courses</a>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Format date
-        function formatDate(timestamp) {
-            if (!timestamp) return 'N/A';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-        }
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7tdxFyTOWOqaAxJptAq5vZm92oz1v05M",
+            authDomain: "study-portal-bef7a.firebaseapp.com",
+            databaseURL: "https://study-portal-bef7a-default-rtdb.firebaseio.com",
+            projectId: "study-portal-bef7a",
+            storageBucket: "study-portal-bef7a.appspot.com",
+            messagingSenderId: "335677529543",
+            appId: "1:335677529543:web:0e95959d30b3b3daf4cde2"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
         document.addEventListener('DOMContentLoaded', async function() {
             // Get course ID from URL
@@ -649,120 +567,39 @@
                 window.location.href = 'courses.html';
                 return;
             }
-
+            
             try {
-                showLoading();
+                // Show loading state
+                document.body.style.opacity = '0.7';
+                document.body.style.pointerEvents = 'none';
                 
-                // Get course data from Firestore with modules and instructor data
-                const courseDoc = await firestore.collection('courses').doc(courseId).get();
+                // Get course data from Firebase
+                const courseRef = ref(database, `courses/${courseId}`);
+                const snapshot = await get(courseRef);
+                const course = snapshot.val();
                 
-                if (!courseDoc.exists) {
+                if (!course) {
                     throw new Error('Course not found');
                 }
                 
-                const course = { 
-                    id: courseDoc.id, 
-                    ...courseDoc.data(),
-                    modules: [],
-                    instructor: {}
-                };
-                
-                // Get modules for this course
-                const modulesSnapshot = await firestore
-                    .collection('courses')
-                    .doc(courseId)
-                    .collection('modules')
-                    .orderBy('order', 'asc')
-                    .get();
-                    
-                course.modules = await Promise.all(modulesSnapshot.docs.map(async moduleDoc => {
-                    const moduleData = moduleDoc.data();
-                    
-                    // Get lessons for this module
-                    const lessonsSnapshot = await firestore
-                        .collection('courses')
-                        .doc(courseId)
-                        .collection('modules')
-                        .doc(moduleDoc.id)
-                        .collection('lessons')
-                        .orderBy('order', 'asc')
-                        .get();
-                        
-                    return {
-                        id: moduleDoc.id,
-                        ...moduleData,
-                        lessons: lessonsSnapshot.docs.map(lessonDoc => ({
-                            id: lessonDoc.id,
-                            ...lessonDoc.data()
-                        }))
-                    };
-                }));
-                
-                // Get instructor data if available
-                if (course.instructorId) {
-                    const instructorDoc = await firestore.collection('instructors').doc(course.instructorId).get();
-                    if (instructorDoc.exists) {
-                        course.instructor = {
-                            id: instructorDoc.id,
-                            ...instructorDoc.data()
-                        };
-                    }
-                }
-                
-                renderCourse(course);
-                
-            } catch (error) {
-                console.error('Error loading course:', error);
-                showError(error.message);
-            }
-        });
-        
-        // Render course data to the UI
-        function renderCourse(course) {
+                // Add the course ID to the course object
+                course.id = courseId;
             
             // Update page title
             document.title = `${course.name} - StudyApp`;
             
             // Update course header
-            document.getElementById('courseTitle').textContent = course.name || 'Untitled Course';
+            document.getElementById('courseTitle').textContent = course.name;
             document.getElementById('courseCategory').textContent = course.category || 'Course';
-            document.getElementById('enrolledStudents').textContent = course.enrolledCount ? `${course.enrolledCount} students` : 'No students enrolled';
+            document.getElementById('enrolledStudents').textContent = course.enrolled || 0;
             document.getElementById('courseDuration').textContent = course.duration || 'N/A';
             document.getElementById('courseLevel').textContent = course.level || 'All Levels';
-            document.getElementById('courseRating').textContent = course.averageRating?.toFixed(1) || '0.0';
-            document.getElementById('totalRatings').textContent = course.ratingCount ? `(${course.ratingCount} ratings)` : '(No ratings yet)';
+            document.getElementById('courseRating').textContent = course.rating?.toFixed(1) || '0.0';
+            document.getElementById('totalRatings').textContent = course.totalRatings || 0;
             
-            // Update course meta information
-            if (course.createdAt) {
-                const date = course.createdAt.toDate ? course.createdAt.toDate() : new Date(course.createdAt);
-                document.getElementById('courseCreated').textContent = `Created: ${date.toLocaleDateString()}`;
-            } else {
-                document.getElementById('courseCreated').textContent = 'Created: N/A';
-            }
-            
-            if (course.updatedAt) {
-                const date = course.updatedAt.toDate ? course.updatedAt.toDate() : new Date(course.updatedAt);
-                document.getElementById('courseUpdated').textContent = `Last updated: ${date.toLocaleDateString()}`;
-            } else {
-                document.getElementById('courseUpdated').textContent = 'Last updated: N/A';
-            }
-            
-            // Update course description with markdown support
-            const descriptionElement = document.getElementById('courseDescription');
-            if (course.description) {
-                // Simple markdown to HTML conversion (basic implementation)
-                let html = course.description
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
-                    .replace(/\n/g, '<br>') // Line breaks
-                    .replace(/^### (.*$)/gm, '<h5>$1</h5>') // Headers
-                    .replace(/^## (.*$)/gm, '<h4>$1</h4>')
-                    .replace(/^# (.*$)/gm, '<h3>$1</h3>');
-                
-                descriptionElement.innerHTML = html;
-            } else {
-                descriptionElement.innerHTML = '<p class="text-muted">No description available for this course.</p>';
-            }
+            // Update course description
+            document.getElementById('courseDescription').innerHTML = course.description || 
+                '<p>No description available for this course.</p>';
             
             // Update learning outcomes
             const learningOutcomes = document.getElementById('learningOutcomes');
@@ -782,56 +619,25 @@
             // Update course modules
             const courseModules = document.getElementById('courseModules');
             if (course.modules && course.modules.length > 0) {
-                courseModules.innerHTML = course.modules.map((module, index) => {
-                    const lessonCount = module.lessons ? module.lessons.length : 0;
-                    const totalDuration = module.lessons ? 
-                        module.lessons.reduce((total, lesson) => total + (parseInt(lesson.durationMinutes) || 0), 0) : 0;
-                    
-                    return `
-                        <div class="module-item">
-                            <div class="module-title" onclick="toggleModule(${index})">
-                                <span>
-                                    <strong>Module ${index + 1}:</strong> ${module.name || 'Untitled Module'}
-                                    <small class="text-muted ms-2">
-                                        ${lessonCount} ${lessonCount === 1 ? 'lesson' : 'lessons'} • ${formatDuration(totalDuration)}
-                                    </small>
-                                </span>
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                            <div class="module-content" id="module-${index}">
-                                ${module.lessons && module.lessons.length > 0 ? 
-                                    module.lessons.map((lesson, i) => `
-                                        <a href="#" class="lesson-item" data-lesson-id="${lesson.id}" 
-                                           onclick="event.preventDefault(); playLesson('${lesson.id}', '${lesson.name || 'Untitled Lesson'}', ${JSON.stringify(lesson).replace(/"/g, '&quot;')});">
-                                            <i class="far ${lesson.videoUrl ? 'fa-play-circle' : 'fa-file-alt'}"></i>
-                                            <span>${i + 1}. ${lesson.name || 'Untitled Lesson'}</span>
-                                            <span class="ms-auto">
-                                                ${lesson.duration || '5:00'}
-                                                ${lesson.isPreview ? '<span class="badge bg-info ms-2">Preview</span>' : ''}
-                                            </span>
-                                        </a>
-                                    `).join('') : 
-                                    '<div class="p-3 text-muted text-center">No lessons in this module.</div>'
-                                }
-                            </div>
+                courseModules.innerHTML = course.modules.map((module, index) => `
+                    <div class="module-item">
+                        <div class="module-title" onclick="toggleModule(${index})">
+                            <span>${module.name} <small class="text-muted">(${module.lessons ? module.lessons.length : 0} lessons)</small></span>
+                            <i class="fas fa-chevron-down"></i>
                         </div>
-                    `;
-                }).join('');
-            } else {
-                courseModules.innerHTML = `
-                    <div class="text-center p-4">
-                        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-                        <p class="mb-0">No modules available for this course yet.</p>
+                        <div class="module-content" id="module-${index}">
+                            ${module.lessons ? module.lessons.map((lesson, i) => `
+                                <a href="#" class="lesson-item">
+                                    <i class="far fa-play-circle"></i>
+                                    <span>${i + 1}. ${lesson.name || 'Untitled Lesson'}</span>
+                                    <span class="ms-auto">${lesson.duration || '5:00'}</span>
+                                </a>
+                            `).join('') : '<p>No lessons in this module.</p>'}
+                        </div>
                     </div>
-                `;
-            }
-            
-            // Helper function to format duration in minutes to HH:MM:SS
-            function formatDuration(minutes) {
-                if (!minutes) return '0m';
-                const hours = Math.floor(minutes / 60);
-                const mins = minutes % 60;
-                return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+                `).join('');
+            } else {
+                courseModules.innerHTML = '<p>No modules available for this course yet.</p>';
             }
             
             // Update instructor info
@@ -842,60 +648,9 @@
             
             // Update course image
             const courseImage = document.getElementById('courseImage');
-            const courseImagePreview = document.getElementById('courseImagePreview');
-            
-            async function updateCourseImage(imageUrl) {
-                if (imageUrl) {
-                    try {
-                        // If it's a Firebase Storage URL, get the download URL
-                        if (imageUrl.startsWith('gs://')) {
-                            const storage = firebase.storage();
-                            const imageRef = storage.refFromURL(imageUrl);
-                            imageUrl = await imageRef.getDownloadURL();
-                        }
-                        
-                        courseImage.src = imageUrl;
-                        courseImage.alt = course.name || 'Course Image';
-                        if (courseImagePreview) {
-                            courseImagePreview.src = imageUrl;
-                            courseImagePreview.alt = course.name || 'Course Image';
-                        }
-                        return;
-                    } catch (error) {
-                        console.error('Error loading image:', error);
-                    }
-                }
-                
-                // Set a default course image if none provided or if there was an error
-                const defaultImage = 'https://via.placeholder.com/800x450?text=No+Image+Available';
-                courseImage.src = defaultImage;
-                courseImage.alt = 'Course Image Not Available';
-                if (courseImagePreview) {
-                    courseImagePreview.src = defaultImage;
-                    courseImagePreview.alt = 'Course Image Not Available';
-                }
-            }
-            
-            updateCourseImage(course.imageUrl || course.image);
-            
-            // Update course requirements if they exist
-            const requirementsList = document.getElementById('courseRequirements');
-            if (course.requirements && course.requirements.length > 0) {
-                requirementsList.innerHTML = course.requirements
-                    .map(req => `<li>${req}</li>`)
-                    .join('');
-            } else {
-                requirementsList.innerHTML = '<li>No special requirements</li>';
-            }
-            
-            // Update what you'll learn section
-            const whatYoullLearn = document.getElementById('whatYoullLearn');
-            if (course.whatYoullLearn && course.whatYoullLearn.length > 0) {
-                whatYoullLearn.innerHTML = course.whatYoullLearn
-                    .map(item => `<li>${item}</li>`)
-                    .join('');
-            } else {
-                whatYoullLearn.innerHTML = '<li>No learning objectives specified</li>';
+            if (course.image) {
+                courseImage.src = course.image;
+                courseImage.alt = course.name;
             }
             
             // Update pricing
@@ -935,136 +690,126 @@
             // Update rating distribution
             updateRatingDistribution(course.ratings || {});
             
-            // Enroll button click handler
-            const enrollButtons = document.querySelectorAll('#enrollBtn, #enrollBtnSidebar');
+            // Load course videos
+            try {
+                await loadCourseVideos(courseId);
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                const videoList = document.getElementById('videoList');
+                if (videoList) {
+                    videoList.innerHTML = `
+                        <div class="alert alert-warning">
+                            Unable to load course videos. Please try again later.
+                        </div>`;
+                }
+            }
+            
+            // Show the content
+            document.body.style.opacity = '1';
+            document.body.style.pointerEvents = 'auto';
+            
+            } catch (error) {
+                console.error('Error loading course:', error);
+                document.body.innerHTML = `
+                    <div class="container my-5 py-5 text-center">
+                        <div class="display-1 text-muted mb-4">⚠️</div>
+                        <h2 class="mb-4">Error Loading Course</h2>
+                        <p class="lead mb-4">We couldn't load the course details. Please try again later.</p>
+                        <a href="courses.html" class="btn btn-primary">Back to Courses</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Handle enrollment button clicks
+            const enrollButtons = document.querySelectorAll('.enroll-btn, .start-learning-btn');
             enrollButtons.forEach(button => {
-                button.addEventListener('click', async function() {
+                button.addEventListener('click', function() {
                     // Check if user is logged in
-                    const user = auth.currentUser;
-                    if (!user) {
+                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                    if (!currentUser) {
                         window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
                         return;
                     }
                     
-                    try {
-                        // Check if already enrolled
-                        const enrollmentRef = firestore.collection('enrollments').doc(`${user.uid}_${course.id}`);
-                        const enrollmentDoc = await enrollmentRef.get();
-                        
-                        if (enrollmentDoc.exists) {
-                            alert('You are already enrolled in this course!');
-                            window.location.href = `course-player.html?courseId=${course.id}`;
-                            return;
-                        }
-                        
-                        // Disable button and show loading state
-                        enrollButtons.forEach(btn => {
-                            btn.disabled = true;
-                            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enrolling...';
-                        });
-                        
-                        // Add enrollment to Firestore
-                        const enrollmentData = {
-                            userId: user.uid,
-                            courseId: course.id,
-                            courseTitle: course.name,
-                            enrolledAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            progress: 0,
-                            completed: false,
-                            lastAccessed: firebase.firestore.FieldValue.serverTimestamp(),
-                            modulesCompleted: 0,
-                            totalModules: course.modules?.length || 0,
-                            lessonsCompleted: 0,
-                            totalLessons: course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0
-                        };
-                        
-                        // Start a batch write to update both enrollment and course
-                        const batch = firestore.batch();
-                        
-                        // Add enrollment
-                        batch.set(enrollmentRef, enrollmentData);
-                        
-                        // Update course's enrolled count
-                        const courseRef = firestore.collection('courses').doc(course.id);
-                        batch.update(courseRef, {
-                            enrolledCount: firebase.firestore.FieldValue.increment(1),
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        
-                        // Commit the batch
-                        await batch.commit();
-                        
-                        // Show success message and update UI
-                        const toast = new bootstrap.Toast(document.getElementById('enrollToast'));
-                        toast.show();
-                        
-                        // Update UI
-                        const enrolledCount = document.getElementById('enrolledCount');
-                        if (enrolledCount) {
-                            const currentCount = parseInt(enrolledCount.textContent) || 0;
-                            enrolledCount.textContent = currentCount + 1;
-                        }
-                        
-                        // Update buttons
-                        enrollButtons.forEach(btn => {
-                            btn.textContent = 'Go to Course';
-                            btn.classList.remove('btn-primary');
-                            btn.classList.add('btn-success');
-                            btn.disabled = false;
-                            btn.onclick = function() {
-                                window.location.href = `course-player.html?courseId=${course.id}`;
-                            };
-                        });
-                        
-                        // Redirect to course player after a short delay
-                        setTimeout(() => {
-                            window.location.href = `course-player.html?courseId=${course.id}`;
-                        }, 1500);
-                        
-                    } catch (error) {
-                        console.error('Error enrolling in course:', error);
-                        alert('Failed to enroll in course. Please try again.');
-                        
-                        // Reset buttons
-                        enrollButtons.forEach(btn => {
-                            btn.textContent = 'Enroll Now';
-                            btn.disabled = false;
-                        });
+                    // Get or initialize user enrollments
+                    const userEnrollments = JSON.parse(localStorage.getItem('userEnrollments') || '{}');
+                    if (!userEnrollments[currentUser.id]) {
+                        userEnrollments[currentUser.id] = [];
                     }
+                    
+                    // Check if already enrolled
+                    const isEnrolled = userEnrollments[currentUser.id].some(
+                        enrollment => enrollment.courseId == courseId
+                    );
+                    
+                    if (isEnrolled) {
+                        alert('You are already enrolled in this course!');
+                        return;
+                    }
+                    
+                    // Add enrollment
+                    userEnrollments[currentUser.id].push({
+                        courseId: courseId,
+                        enrolledAt: new Date().toISOString(),
+                        progress: 0,
+                        lastAccessed: new Date().toISOString()
+                    });
+                    
+                    // Save to localStorage
+                    localStorage.setItem('userEnrollments', JSON.stringify(userEnrollments));
+                    
+                    // Update UI
+                    const enrolledCount = document.getElementById('enrolledCount');
+                    if (enrolledCount) {
+                        const currentCount = parseInt(enrolledCount.textContent) || 0;
+                        enrolledCount.textContent = currentCount + 1;
+                    }
+                    
+                    // Update course's enrolled count
+                    const courses = JSON.parse(localStorage.getItem('courses') || '[]');
+                    const courseIndex = courses.findIndex(c => c.id == courseId);
+                    if (courseIndex !== -1) {
+                        if (!courses[courseIndex].enrolled) {
+                            courses[courseIndex].enrolled = 0;
+                        }
+                        courses[courseIndex].enrolled++;
+                        localStorage.setItem('courses', JSON.stringify(courses));
+                    }
+                    
+                    // Show success message and update button
+                    alert('Successfully enrolled in the course!');
+                    enrollButtons.forEach(btn => {
+                        btn.textContent = 'Go to Course';
+                        btn.classList.remove('btn-primary');
+                        btn.classList.add('btn-success');
+                        btn.onclick = function() {
+                            window.location.href = `course-player.html?courseId=${courseId}`;
+                        };
+                    });
                 });
             });
             
             // Check if user is already enrolled and update UI
-            async function checkEnrollmentStatus() {
-                const user = auth.currentUser;
-                if (!user) return;
+            function checkEnrollmentStatus() {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                if (!currentUser) return;
                 
-                try {
-                    const enrollmentRef = firestore.collection('enrollments').doc(`${user.uid}_${course.id}`);
-                    const enrollmentDoc = await enrollmentRef.get();
-                    
-                    if (enrollmentDoc.exists) {
-                        const enrollButtons = document.querySelectorAll('#enrollBtn, #enrollBtnSidebar');
-                        enrollButtons.forEach(btn => {
-                            btn.textContent = 'Go to Course';
-                            btn.classList.remove('btn-primary');
-                            btn.classList.add('btn-success');
-                            btn.onclick = function() {
-                                window.location.href = `course-player.html?courseId=${course.id}`;
-                            };
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error checking enrollment status:', error);
+                const userEnrollments = JSON.parse(localStorage.getItem('userEnrollments') || '{}');
+                const userCourses = userEnrollments[currentUser.id] || [];
+                const isEnrolled = userCourses.some(enrollment => enrollment.courseId == courseId);
+                
+                if (isEnrolled) {
+                    enrollButtons.forEach(btn => {
+                        btn.textContent = 'Go to Course';
+                        btn.classList.remove('btn-primary');
+                        btn.classList.add('btn-success');
+                        btn.onclick = function() {
+                            window.location.href = `course-player.html?courseId=${courseId}`;
+                        };
+                    });
                 }
             }
-            
-            // Call checkEnrollmentStatus when auth state changes
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    checkEnrollmentStatus();
-                }
-            });
             
             // Initial check
             checkEnrollmentStatus();
@@ -1085,39 +830,76 @@
                 }
             };
         });
-        
-        function loadCourseVideos(courseId) {
-            // In a real app, this would fetch from your backend
-            const courses = JSON.parse(localStorage.getItem('courses') || '[]');
-            const course = courses.find(c => c.id === courseId);
-            
-            if (!course || !course.videos || course.videos.length === 0) {
-                return;
-            }
-            
+
+        async function loadCourseVideos(courseId) {
             const videoList = document.getElementById('videoList');
             const noVideosMessage = document.getElementById('noVideosMessage');
             
-            if (noVideosMessage) noVideosMessage.remove();
-            videoList.innerHTML = '';
+            // Show loading state
+            videoList.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
             
-            course.videos.forEach((video, index) => {
-                const videoItem = document.createElement('div');
-                videoItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-                videoItem.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-play-circle me-3 text-primary" style="font-size: 1.5rem;"></i>
-                        <div>
-                            <h6 class="mb-0">${video.title || 'Untitled Video'}</h6>
-                            <small class="text-muted">${video.duration || 'Duration not specified'}</small>
+            try {
+                // Get a reference to the specific course's videos
+                const videosRef = ref(database, `courses/${courseId}/videos`);
+                
+                // Fetch the data once
+                const snapshot = await get(videosRef);
+                const videos = snapshot.val();
+                
+                // Clear loading state
+                videoList.innerHTML = '';
+                
+                if (!videos || Object.keys(videos).length === 0) {
+                    // Show no videos message if there are no videos
+                    if (!noVideosMessage) {
+                        const noVideos = document.createElement('div');
+                        noVideos.id = 'noVideosMessage';
+                        noVideos.className = 'alert alert-info';
+                        noVideos.textContent = 'No videos available for this course yet.';
+                        videoList.appendChild(noVideos);
+                    }
+                    return;
+                }
+                
+                // Convert object of videos to array and sort by order or title
+                const videosArray = Object.entries(videos).map(([id, video]) => ({
+                    id,
+                    ...video
+                })).sort((a, b) => (a.order || 0) - (b.order || 0));
+                
+                // Display each video
+                videosArray.forEach((video, index) => {
+                    const videoItem = document.createElement('div');
+                    videoItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                    videoItem.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-play-circle me-3" style="color: var(--primary-color);"></i>
+                            <div>
+                                <h6 class="mb-0">${video.title || 'Untitled Video'}</h6>
+                                <small class="text-muted">${video.duration || '00:00'}</small>
+                            </div>
                         </div>
+                        <span class="badge bg-light text-dark">${index + 1}</span>
+                    `;
+                    
+                    videoItem.addEventListener('click', () => {
+                        if (video.url) {
+                            playVideo(video.url, video.title || 'Video');
+                        } else {
+                            alert('Video URL not available');
+                        }
+                    });
+                    
+                    videoList.appendChild(videoItem);
+                });
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                videoList.innerHTML = `
+                    <div class="alert alert-danger">
+                        Failed to load videos. Please try again later.
                     </div>
-                    <button class="btn btn-sm btn-outline-primary" onclick="playVideo('${video.url}', '${video.title || 'Video'}')">
-                        <i class="fas fa-play me-1"></i> Play
-                    </button>
                 `;
-                videoList.appendChild(videoItem);
-            });
+            }
         }
         
         function showAddVideoModal(courseId) {
