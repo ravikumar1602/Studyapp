@@ -11,11 +11,15 @@
             --primary-color: #4a6cf7;
             --secondary-color: #6c757d;
             --success-color: #28a745;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            --card-hover-shadow: 0 4px 8px rgba(0,0,0,0.1);
             --info-color: #17a2b8;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
             --light-color: #f8f9fa;
             --dark-color: #343a40;
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
             --sidebar-width: 250px;
             --header-height: 70px;
         }
@@ -132,24 +136,24 @@
 
         /* All Courses Specific */
         .course-card {
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            background: white;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
             height: 100%;
             display: flex;
             flex-direction: column;
+            background: #fff;
         }
         
         .course-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
         }
         
         .course-thumbnail {
-            height: 160px;
+            height: 140px;
             background-size: cover;
             background-position: center;
             position: relative;
@@ -168,8 +172,8 @@
         }
         
         .course-info {
-            padding: 1.25rem;
-            flex-grow: 1;
+            padding: 1rem;
+            flex: 1;
             display: flex;
             flex-direction: column;
         }
@@ -185,10 +189,22 @@
         
         .course-title {
             font-weight: 600;
-            margin: 0 0 10px 0;
-            font-size: 1.1rem;
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
             color: var(--dark-color);
             line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.8em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-clamp: 2;
+            box-orient: vertical;
         }
         
         .course-instructor {
@@ -201,27 +217,25 @@
         }
         
         .course-meta {
-            margin-top: auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 10px;
-            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
         }
         
         .course-rating {
-            color: var(--warning-color);
-            font-weight: 600;
-            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 5px;
+            font-size: 0.85rem;
+            color: #ffc107;
         }
         
         .course-price {
-            font-weight: 700;
+            font-weight: 600;
+            font-size: 0.95rem;
             color: var(--success-color);
-            font-size: 1.1rem;
         }
         
         .filter-section {
@@ -302,93 +316,40 @@
                 display: block;
             }
         }
-        .course-card {
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+        
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
         }
-        .course-card:hover {
-            transform: translateY(-5px);
+        
+        @media (max-width: 992px) {
+            .course-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .course-thumbnail {
+                height: 120px;
+            }
         }
-        .course-thumbnail {
-            height: 160px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
+        
+        @media (max-width: 768px) {
+            .course-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
-        .course-level {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-        .course-info {
-            padding: 15px;
-            background: white;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .course-category {
-            color: #4a6cf7;
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        .course-title {
-            font-weight: 600;
-            margin: 5px 0 10px;
-            flex-grow: 1;
-        }
-        .course-instructor {
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-        .course-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-        }
-        .course-rating {
-            color: #ffc107;
-            font-weight: 500;
-        }
-        .course-price {
-            font-weight: 600;
-            color: #28a745;
-        }
-        .filter-section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        .category-list {
-            list-style: none;
-            padding: 0;
-        }
-        .category-list li {
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-        .category-list li:hover {
-            color: #4a6cf7;
-        }
-        .category-list li.active {
-            font-weight: 600;
-            color: #4a6cf7;
+        
+        @media (max-width: 576px) {
+            .course-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .course-thumbnail {
+                height: 160px;
+            }
         }
     </style>
 </head>
@@ -453,144 +414,41 @@
         </div>
 
         <div class="container-fluid p-0 mt-4">
-            <div class="row">
-                <!-- Sidebar Filters -->
-                <div class="col-lg-3">
-                    <div class="filter-section mb-4">
-                        <h5>Categories</h5>
-                        <ul class="category-list">
-                            <li class="active">All Categories</li>
-                            <li>Web Development</li>
-                            <li>Mobile Development</li>
-                            <li>Data Science</li>
-                            <li>Design</li>
-                            <li>Business</li>
-                            <li>Marketing</li>
-                            <li>Photography</li>
-                        </ul>
+            <!-- Course Grid -->
+            <div class="container px-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                        <h5 class="mb-0 me-3">Courses List</h5>
+                        <span class="text-muted small course-count">Loading courses...</span>
                     </div>
-                    
-                    <div class="filter-section">
-                        <h5>Level</h5>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="beginnerCheck" checked>
-                            <label class="form-check-label" for="beginnerCheck">
-                                Beginner
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="intermediateCheck" checked>
-                            <label class="form-check-label" for="intermediateCheck">
-                                Intermediate
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="advancedCheck" checked>
-                            <label class="form-check-label" for="advancedCheck">
-                                Advanced
-                            </label>
+                    <div class="d-flex">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-sort me-1"></i> 
+                                <span>Sort</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+                                <li><a class="dropdown-item active" href="#" data-sort="newest">Newest First</a></li>
+                                <li><a class="dropdown-item" href="#" data-sort="popular">Most Popular</a></li>
+                                <li><a class="dropdown-item" href="#" data-sort="rating">Highest Rated</a></li>
+                                <li><hr class="dropdown-divider m-1"></li>
+                                <li><a class="dropdown-item" href="#" data-sort="price-asc">Price: Low to High</a></li>
+                                <li><a class="dropdown-item" href="#" data-sort="price-desc">Price: High to Low</a></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Course Grid -->
-                <div class="col-lg-9">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="d-flex align-items-center">
-                            <h4 class="mb-0 me-3">All Courses</h4>
-                            <span class="text-muted">124 courses</span>
-                        </div>
-                        <div class="d-flex
-                        <div class="dropdown me-2">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                Sort by: Newest
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
-                                <li><a class="dropdown-item" href="#">Newest</a></li>
-                                <li><a class="dropdown-item" href="#">Highest Rated</a></li>
-                                <li><a class="dropdown-item" href="#">Most Popular</a></li>
-                                <li><a class="dropdown-item" href="#">Price: Low to High</a></li>
-                                <li><a class="dropdown-item" href="#">Price: High to Low</a></li>
-                            </ul>
-                        </div>
-                        <div class="input-group" style="width: 250px;">
-                            <input type="text" class="form-control" placeholder="Search courses...">
-                            <button class="btn btn-primary" type="button"><i class="fas fa-search"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <!-- Course Card 1 -->
-                        <div class="col-md-6 col-lg-4">
-                            <div class="course-card">
-                                <div class="course-thumbnail" style="background-image: url('https://source.unsplash.com/random/600x400/?web,development');">
-                                    <span class="course-level">Beginner</span>
-                                </div>
-                                <div class="course-info">
-                                    <span class="course-category">Web Development</span>
-                                    <h5 class="course-title">The Complete Web Development Bootcamp</h5>
-                                    <div class="course-instructor">By John Doe</div>
-                                    <div class="course-meta">
-                                        <div class="course-rating">
-                                            <i class="fas fa-star"></i> 4.7
-                                        </div>
-                                        <div class="course-price">$89.99</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="course-grid" id="coursesContainer">
+                    <!-- Courses will be loaded here -->
+                </div>
                         
-                        <!-- Course Card 2 -->
-                        <div class="col-md-6 col-lg-4">
-                            <div class="course-card">
-                                <div class="course-thumbnail" style="background-image: url('https://source.unsplash.com/random/600x400/?mobile,app');">
-                                    <span class="course-level">Intermediate</span>
-                                </div>
-                                <div class="course-info">
-                                    <span class="course-category">Mobile Development</span>
-                                    <h5 class="course-title">Flutter & Dart - The Complete Guide</h5>
-                                    <div class="course-instructor">By Jane Smith</div>
-                                    <div class="course-meta">
-                                        <div class="course-rating">
-                                            <i class="fas fa-star"></i> 4.8
-                                        </div>
-                                        <div class="course-price">$99.99</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Course Card 3 -->
-                        <div class="col-md-6 col-lg-4">
-                            <div class="course-card">
-                                <div class="course-thumbnail" style="background-image: url('https://source.unsplash.com/random/600x400/?data,science');">
-                                    <span class="course-level">Advanced</span>
-                                </div>
-                                <div class="course-info">
-                                    <span class="course-category">Data Science</span>
-                                    <h5 class="course-title">Machine Learning A-Z: Hands-On Python</h5>
-                                    <div class="course-instructor">By Alex Johnson</div>
-                                    <div class="course-meta">
-                                        <div class="course-rating">
-                                            <i class="fas fa-star"></i> 4.9
-                                        </div>
-                                        <div class="course-price">$119.99</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- More course cards can be added here -->
-                        
-                        <!-- Pagination -->
-                        <nav aria-label="Page navigation" class="mt-4">
+                        <!-- Pagination (can be enabled later if needed) -->
+                        <nav aria-label="Page navigation" class="mt-4 d-none" id="paginationContainer">
                             <ul class="pagination justify-content-center">
                                 <li class="page-item disabled">
                                     <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
                                 </li>
                                 <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
                                 <li class="page-item">
                                     <a class="page-link" href="#">Next</a>
                                 </li>
@@ -602,28 +460,590 @@
         </div>
     </main>
 
+    <!-- Course Details Modal -->
+    <div class="modal fade" id="courseDetailsModal" tabindex="-1" aria-labelledby="courseDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="courseDetailsModalLabel">Course Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="courseDetailsContent">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading course details...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="#" class="btn btn-primary" id="enrollInCourseBtn">Enroll Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="toastContainer" class="toast-container">
+            <!-- Toasts will be added here dynamically -->
+        </div>
+    </div>
+
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- User Menu Script -->
-    <script src="js/user-menu.js"></script>
+    <style>
+        .toast-container {
+            min-width: 300px;
+        }
+        .toast {
+            margin-bottom: 0.5rem;
+        }
+        .btn-success {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        .btn-success:hover {
+            background-color: #157347;
+            border-color: #146c43;
+        }
+    </style>
     
-    <script>
-        // Toggle sidebar on mobile
-        document.querySelector('.menu-toggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('active');
-        });
-
-        // Add active class to selected category
-        document.addEventListener('DOMContentLoaded', function() {
-            const categoryItems = document.querySelectorAll('.category-list li');
-            categoryItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    categoryItems.forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+        import { getDatabase, ref, get, set, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7tdxFyTOWOqaAxJptAq5vZm92oz1v05M",
+            authDomain: "study-portal-bef7a.firebaseapp.com",
+            databaseURL: "https://study-portal-bef7a-default-rtdb.firebaseio.com",
+            projectId: "study-portal-bef7a",
+            storageBucket: "study-portal-bef7a.appspot.com",
+            messagingSenderId: "335677529543",
+            appId: "1:335677529543:web:0e95959d30b3b3daf4cde2"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        // Function to load courses from Firebase
+        // Global variables
+        let allCourses = [];
+        let currentSort = 'newest';
+        
+        // Function to handle view details click
+        function setupViewDetailsButtons() {
+            console.log('Setting up view details buttons...');
+            const buttons = document.querySelectorAll('.view-details-btn');
+            console.log(`Found ${buttons.length} view details buttons`);
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    console.log('View details clicked');
+                    e.preventDefault();
+                    const courseId = this.getAttribute('data-course-id');
+                    console.log('Course ID:', courseId);
+                    if (courseId) {
+                        console.log('Loading course details for:', courseId);
+                        loadCourseDetails(courseId);
+                    } else {
+                        console.error('No course ID found');
+                    }
                 });
             });
+        }
+
+        // Function to load course details
+        async function loadCourseDetails(courseId) {
+            try {
+                const courseRef = ref(database, `courses/${courseId}`);
+                const snapshot = await get(courseRef);
+                
+                if (snapshot.exists()) {
+                    const course = { id: courseId, ...snapshot.val() };
+                    showCourseDetailsModal(course);
+                } else {
+                    throw new Error('Course not found');
+                }
+            } catch (error) {
+                console.error('Error loading course details:', error);
+                const modalContent = `
+                    <div class="alert alert-danger">
+                        Error loading course details. Please try again later.
+                    </div>`;
+                document.getElementById('courseDetailsContent').innerHTML = modalContent;
+            }
+        }
+
+        // Function to handle course enrollment
+        async function enrollInCourse(courseId) {
+            try {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                if (!currentUser) {
+                    // Store course ID for after login
+                    sessionStorage.setItem('pendingEnrollment', courseId);
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Get course details
+                const courseRef = ref(database, `courses/${courseId}`);
+                const courseSnapshot = await get(courseRef);
+                
+                if (!courseSnapshot.exists()) {
+                    throw new Error('Course not found');
+                }
+                
+                const course = { id: courseId, ...courseSnapshot.val() };
+                
+                // Get user's enrolled courses from Firebase
+                const userRef = ref(database, `users/${currentUser.uid}/enrolledCourses/${courseId}`);
+            
+                // Add course to enrolled courses with timestamp
+                const enrollmentData = {
+                    enrolledAt: new Date().toISOString(),
+                    progress: 0,
+                    completed: false,
+                    lastAccessed: new Date().toISOString()
+                };
+                
+                await set(userRef, enrollmentData);
+                
+                // Also update localStorage for offline access
+                const userEnrollments = JSON.parse(localStorage.getItem('userEnrollments') || '{}');
+                if (!userEnrollments[currentUser.uid]) {
+                    userEnrollments[currentUser.uid] = [];
+                }
+                
+                // Remove if already exists to avoid duplicates
+                userEnrollments[currentUser.uid] = userEnrollments[currentUser.uid].filter(
+                    item => item.courseId !== courseId
+                );
+                
+                // Add new enrollment
+                userEnrollments[currentUser.uid].push({
+                    courseId,
+                    ...enrollmentData
+                });
+                
+                localStorage.setItem('userEnrollments', JSON.stringify(userEnrollments));
+                
+                // Update button state
+                const enrollBtn = document.getElementById('enrollInCourseBtn');
+                if (enrollBtn) {
+                    enrollBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Enrolled';
+                    enrollBtn.classList.remove('btn-primary');
+                    enrollBtn.classList.add('btn-success');
+                    enrollBtn.disabled = true;
+                }
+                
+                // Show success toast
+                const toast = new bootstrap.Toast(document.getElementById('enrollToast'));
+                const toastMessage = document.getElementById('toastMessage');
+                toastMessage.textContent = `Successfully enrolled in ${course.name || 'the course'}!`;
+                toast.show();
+                
+                // Redirect to course details after a delay
+                setTimeout(() => {
+                    window.location.href = `course-details.html?id=${courseId}`;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Error enrolling in course:', error);
+                
+                // Show error toast
+                const toast = new bootstrap.Toast(document.getElementById('errorToast'));
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = error.message || 'Failed to enroll in course. Please try again.';
+                toast.show();
+            }
+        }
+
+        // Function to show toast messages
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) return;
+            
+            const toastId = 'toast-' + Date.now();
+            const toast = document.createElement('div');
+            toast.id = toastId;
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>`;
+                
+            toastContainer.appendChild(toast);
+            
+            const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 5000 });
+            bsToast.show();
+            
+            // Remove toast from DOM after it's hidden
+            toast.addEventListener('hidden.bs.toast', function() {
+                toast.remove();
+            });
+        }
+
+        // Function to show course details in modal
+        function showCourseDetailsModal(course) {
+            const modal = new bootstrap.Modal(document.getElementById('courseDetailsModal'));
+            const modalTitle = document.getElementById('courseDetailsModalLabel');
+            const modalContent = document.getElementById('courseDetailsContent');
+            const enrollBtn = document.getElementById('enrollInCourseBtn');
+            
+            // Reset button state
+            enrollBtn.disabled = false;
+            enrollBtn.innerHTML = 'Enroll Now';
+            enrollBtn.className = 'btn btn-primary';
+            
+            // Check if user is already enrolled
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            if (currentUser) {
+                const userRef = ref(database, `users/${currentUser.uid}/enrolledCourses/${course.id}`);
+                get(userRef).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        enrollBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Enrolled';
+                        enrollBtn.classList.remove('btn-primary');
+                        enrollBtn.classList.add('btn-success');
+                        enrollBtn.disabled = false;
+                    }
+                });
+            }
+            
+            // Set up enroll button click handler
+            enrollBtn.onclick = (e) => {
+                e.preventDefault();
+                enrollInCourse(course.id);
+            };
+            
+            // Update modal title and content
+            modalTitle.textContent = course.title || 'Course Details';
+            
+            // Format course details HTML
+            const courseHtml = `
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <img src="${course.image || 'https://via.placeholder.com/400x225'}" 
+                             alt="${course.name || course.title || 'Course Image'}" 
+                             class="img-fluid rounded mb-3">
+                        <div class="d-grid gap-2">
+                            <a href="course-details.html?id=${course.id}" class="btn btn-outline-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>Open Full Page
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h4>${course.name || course.title || 'Untitled Course'}</h4>
+                        <p class="text-muted">${course.instructor || 'Instructor'}</p>
+                        <div class="mb-3">
+                            ${course.description || 'No description available.'}
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge bg-primary">${course.category || 'General'}</span>
+                            ${course.level ? `<span class="badge bg-info">${course.level}</span>` : ''}
+                            ${course.duration ? `<span class="badge bg-secondary">${course.duration}</span>` : ''}
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="text-warning me-2">
+                                ${getRatingStars(course.rating || 0)}
+                            </div>
+                            <small class="text-muted">(${course.rating || 0} rating)</small>
+                        </div>
+                        ${course.price ? `<div class="h5 mb-3">$${course.price}</div>` : ''}
+                    </div>
+                </div>`;
+                
+            modalContent.innerHTML = courseHtml;
+            
+            // Show the modal
+            modal.show();
+        }
+        
+        // Helper function to generate rating stars
+        function getRatingStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            let stars = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    stars += '<i class="fas fa-star"></i>';
+                } else if (i === fullStars + 1 && hasHalfStar) {
+                    stars += '<i class="fas fa-star-half-alt"></i>';
+                } else {
+                    stars += '<i class="far fa-star"></i>';
+                }
+            }
+            
+            return stars;
+        }
+
+        // Function to render courses
+        function renderCourses(courses) {
+            const coursesContainer = document.getElementById('coursesContainer');
+            const courseCountElement = document.querySelector('.course-count');
+            
+            // Update course count
+            if (courseCountElement) {
+                courseCountElement.textContent = `${courses.length} ${courses.length === 1 ? 'course' : 'courses'}`;
+            }
+            
+            if (!coursesContainer) {
+                console.error('Courses container not found');
+                return;
+            }
+            
+            // Clear loading state
+            coursesContainer.innerHTML = '';
+            
+            // Setup view details buttons after rendering
+            console.log('Courses rendered, setting up view details buttons');
+            setTimeout(() => {
+                setupViewDetailsButtons();
+            }, 100);
+            
+            if (courses.length === 0) {
+                coursesContainer.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                        <h5>No courses found</h5>
+                        <p class="text-muted">Check back later for new courses!</p>
+                    </div>`;
+                return;
+            }
+            
+            // Render each course
+            courses.forEach(course => {
+                console.log('Full course object:', course);
+                console.log('Available properties:', Object.keys(course));
+                console.log('Title property:', course.title);
+                console.log('Name property:', course.name);
+                
+                // Try different possible property names for title
+                const courseTitle = course.title || course.name || course.courseName || 'Untitled Course';
+                const courseInstructor = course.instructor || course.author || 'Instructor';
+                
+                const courseCard = `
+                    <div class="course-card">
+                        <div class="course-thumbnail" style="background-image: url('${course.image || course.thumbnail || 'https://source.unsplash.com/random/600x400/?study'}");">
+                            ${course.level ? `<span class="course-level">${course.level}</span>` : ''}
+                        </div>
+                        <div class="course-info">
+                            <span class="course-category">${course.category || course.type || 'General'}</span>
+                            <h5 class="course-title">${courseTitle}</h5>
+                            <div class="course-instructor">By ${courseInstructor}</div>
+                            <div class="course-meta">
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="course-rating me-3">
+                                            <i class="fas fa-star text-warning"></i> ${course.rating || '4.5'}
+                                            <small class="text-muted ms-1">${course.ratingCount ? `(${course.ratingCount})` : ''}</small>
+                                        </div>
+                                        ${course.duration ? `
+                                        <div class="course-duration">
+                                            <i class="far fa-clock text-muted me-1"></i>
+                                            <small class="text-muted">${course.duration} ${course.durationUnit || 'hrs'}</small>
+                                        </div>` : ''}
+                                    </div>
+                                    <div class="course-price fw-bold">${course.price ? `$${course.price}` : 'Free'}</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-primary w-100 mt-2 view-details-btn" data-course-id="${course.id}">View Details</button>
+                        </div>
+                    </div>`;
+                coursesContainer.insertAdjacentHTML('beforeend', courseCard);
+            });
+        }
+        
+        // Function to sort courses
+        function sortCourses(courses, sortBy) {
+            const sortedCourses = [...courses];
+            
+            switch(sortBy) {
+                case 'newest':
+                    return sortedCourses.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                case 'popular':
+                    return sortedCourses.sort((a, b) => (b.enrolled || 0) - (a.enrolled || 0));
+                case 'rating':
+                    return sortedCourses.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+                case 'price-asc':
+                    return sortedCourses.sort((a, b) => (a.price || 0) - (b.price || 0));
+                case 'price-desc':
+                    return sortedCourses.sort((a, b) => (b.price || 0) - (a.price || 0));
+                default:
+                    return sortedCourses;
+            }
+        }
+        
+        // Function to handle sorting
+        function setupSorting() {
+            const sortLinks = document.querySelectorAll('[data-sort]');
+            
+            sortLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Update active state
+                    document.querySelector('[data-sort].active').classList.remove('active');
+                    link.classList.add('active');
+                    
+                    // Update sort dropdown text
+                    const dropdownButton = document.querySelector('#sortDropdown');
+                    if (dropdownButton) {
+                        dropdownButton.textContent = `Sort by: ${link.textContent}`;
+                    }
+                    
+                    // Sort and render courses
+                    currentSort = link.dataset.sort;
+                    const sortedCourses = sortCourses(allCourses, currentSort);
+                    renderCourses(sortedCourses);
+                });
+            });
+        }
+        
+        // Main function to load courses
+        async function loadCourses() {
+            const coursesContainer = document.getElementById('coursesContainer');
+            const courseCountElement = document.querySelector('.course-count');
+            
+            if (!coursesContainer) {
+                console.error('Courses container not found');
+                return;
+            }
+            
+            // Show loading state
+            if (courseCountElement) {
+                courseCountElement.textContent = 'Loading...';
+            }
+            
+            // Show loading spinner
+            coursesContainer.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading courses...</p>
+                </div>`;
+            
+            try {
+                console.log('Initializing Firebase...');
+                console.log('Database reference:', database);
+                
+                const coursesRef = ref(database, 'courses');
+                console.log('Courses reference:', coursesRef);
+                
+                // Update loading message
+                const debugInfo = document.querySelector('.debug-info');
+                if (debugInfo) debugInfo.textContent = 'Fetching courses from database...';
+                
+                const snapshot = await get(coursesRef);
+                console.log('Database snapshot:', snapshot);
+                
+                if (snapshot.exists()) {
+                    allCourses = [];
+                    snapshot.forEach((childSnapshot) => {
+                        const courseData = childSnapshot.val();
+                        // Only add course if it's active or status is not set (backward compatibility)
+                        if (courseData.status !== 'inactive') {
+                            allCourses.push({
+                                id: childSnapshot.key,
+                                ...courseData
+                            });
+                        }
+                    });
+                    
+                    console.log('Active courses loaded:', allCourses);
+                    
+                    if (debugInfo) debugInfo.textContent = `Found ${allCourses.length} active courses`;
+                    
+                    // Sort and render courses
+                    const sortedCourses = sortCourses(allCourses, currentSort);
+                    renderCourses(sortedCourses);
+                    
+                    // Update course count
+                    if (courseCountElement) {
+                        courseCountElement.textContent = `${sortedCourses.length} courses`;
+                    }
+                    
+                    // Setup sorting
+                    setupSorting();
+                    
+                } else {
+                    console.log('No courses found in database');
+                    if (courseCountElement) {
+                        courseCountElement.textContent = 'No courses found';
+                    }
+                    if (debugInfo) debugInfo.textContent = 'No courses found in database';
+                    renderCourses([]);
+                }
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                const errorMessage = error.message || 'Please try again later';
+                console.error('Full error:', error);
+                
+                coursesContainer.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                        <h5>Error loading courses</h5>
+                        <p class="text-muted">${errorMessage}</p>
+                        <div class="debug-info small text-muted mt-2">${error.stack || ''}</div>
+                        <button class="btn btn-primary mt-2" onclick="window.location.reload()">
+                            <i class="fas fa-sync-alt me-2"></i>Retry
+                        </button>
+                    </div>`;
+            }
+        }
+        
+        // Load courses when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded');
+            loadCourses();
+            
+            // Also try setting up buttons after a short delay in case courses are loaded dynamically
+            setTimeout(() => {
+                console.log('Setting up view details buttons after delay');
+                setupViewDetailsButtons();
+            }, 1000);
         });
-</script>
+    </script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+    <script src="js/user-menu.js"></script>
+    <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+        
+        // Initialize popovers
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
+        });
+        
+        // Initialize range slider
+        var priceRange = document.getElementById('priceRange');
+        var priceValue = document.getElementById('priceValue');
+        if (priceRange) {
+            priceRange.addEventListener('input', function() {
+                priceValue.textContent = '$' + this.value;
+            });
+        }
+    </script>
 </body>
 </html>
