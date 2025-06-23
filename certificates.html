@@ -85,9 +85,9 @@
         /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
-            padding: 2rem;
+            padding: 1.5rem;
             min-height: 100vh;
-            background-color: #f5f7fb;
+            transition: all 0.3s ease;
         }
 
         /* Top Navigation */
@@ -95,22 +95,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            padding: 1rem 0;
+            padding: 1rem 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .menu-toggle {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: var(--secondary-color);
-        }
-
-        .user-info {
+        .user-menu {
             display: flex;
             align-items: center;
-            gap: 1rem;
         }
 
         .user-avatar {
@@ -123,7 +117,17 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         /* Certificates Grid */
@@ -295,13 +299,21 @@
     <main class="main-content">
         <!-- Top Navigation -->
         <div class="top-nav">
-            <button class="menu-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="user-info">
-                <span id="userName">Guest User</span>
+            <h2 class="mb-0">Certificates</h2>
+            <div class="user-menu">
                 <div class="user-avatar" id="userAvatar">
-                    <i class="fas fa-user"></i>
+                    <!-- Initials will be set by JavaScript -->
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-link text-dark text-decoration-none dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="userName">Loading...</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -375,43 +387,14 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- User Menu Script -->
+    <script src="js/user-menu.js"></script>
+    
     <script>
         // Toggle sidebar on mobile
         document.querySelector('.menu-toggle').addEventListener('click', function() {
             document.querySelector('.sidebar').classList.toggle('active');
         });
-
-        // Load user info
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-            if (currentUser) {
-                const userNameElement = document.getElementById('userName');
-                const userAvatar = document.getElementById('userAvatar');
-                
-                // Display user's name
-                if (currentUser.displayName) {
-                    userNameElement.textContent = currentUser.displayName;
-                }
-                
-                // Set avatar with initials
-                if (currentUser.displayName) {
-                    const names = currentUser.displayName.split(' ');
-                    const initials = names[0][0] + (names.length > 1 ? names[names.length - 1][0] : '');
-                    userAvatar.textContent = initials;
-                    userAvatar.innerHTML = ''; // Remove the user icon
-                    userAvatar.style.backgroundColor = getRandomColor();
-                }
-            } else {
-                // Redirect to login if not logged in
-                window.location.href = 'login.html';
-            }
-        });
-
-        // Generate a random color for avatar
-        function getRandomColor() {
-            const colors = ['#4a6cf7', '#f74a4a', '#4af7a1', '#f7e74a', '#9d4af7', '#f74ac9'];
-            return colors[Math.floor(Math.random() * colors.length)];
-        }
     </script>
 </body>
 </html>

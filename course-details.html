@@ -541,7 +541,7 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getDatabase, ref, get, child } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
+        import { getDatabase, ref, get, child, set, update } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
         
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -721,74 +721,148 @@
                 return;
             }
             
-            // Handle enrollment button clicks
-            const enrollButtons = document.querySelectorAll('.enroll-btn, .start-learning-btn');
-            enrollButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Check if user is logged in
-                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-                    if (!currentUser) {
-                        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
-                        return;
-                    }
-                    
-                    // Get or initialize user enrollments
-                    const userEnrollments = JSON.parse(localStorage.getItem('userEnrollments') || '{}');
-                    if (!userEnrollments[currentUser.id]) {
-                        userEnrollments[currentUser.id] = [];
-                    }
-                    
+            // Function to handle course enrollment
+            async function enrollInCourse() {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                if (!currentUser) {
+                    // Store the course ID in session storage before redirecting to login
+                    sessionStorage.setItem('pendingEnrollment', courseId);
+                    window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                    return false;
+                }
+                
+                try {
                     // Check if already enrolled
-                    const isEnrolled = userEnrollments[currentUser.id].some(
-                        enrollment => enrollment.courseId == courseId
-                    );
+                    const enrollmentRef = ref(database, `users/${currentUser.uid || currentUser.id}/enrollments/${courseId}`);
+                    const enrollmentSnapshot = await get(enrollmentRef);
                     
-                    if (isEnrolled) {
+                    if (enrollmentSnapshot.exists()) {
                         alert('You are already enrolled in this course!');
-                        return;
+                        return true;
                     }
                     
-                    // Add enrollment
-                    userEnrollments[currentUser.id].push({
+                    // Create enrollment data
+                    const enrollmentData = {
                         courseId: courseId,
                         enrolledAt: new Date().toISOString(),
                         progress: 0,
-                        lastAccessed: new Date().toISOString()
-                    });
+                        lastAccessed: new Date().toISOString(),
+                        status: 'active'
+                    };
                     
-                    // Save to localStorage
-                    localStorage.setItem('userEnrollments', JSON.stringify(userEnrollments));
+                    // Save enrollment to Firebase
+                    await set(enrollmentRef, enrollmentData);
                     
-                    // Update UI
-                    const enrolledCount = document.getElementById('enrolledCount');
-                    if (enrolledCount) {
-                        const currentCount = parseInt(enrolledCount.textContent) || 0;
-                        enrolledCount.textContent = currentCount + 1;
-                    }
+                    // Update course's enrolled count in Firebase
+                    const courseRef = ref(database, `courses/${courseId}`);
+                    const courseSnapshot = await get(courseRef);
                     
-                    // Update course's enrolled count
-                    const courses = JSON.parse(localStorage.getItem('courses') || '[]');
-                    const courseIndex = courses.findIndex(c => c.id == courseId);
-                    if (courseIndex !== -1) {
-                        if (!courses[courseIndex].enrolled) {
-                            courses[courseIndex].enrolled = 0;
+                    if (courseSnapshot.exists()) {
+                        const courseData = courseSnapshot.val();
+                        const updatedEnrolled = (courseData.enrolled || 0) + 1;
+                        
+                        // Update enrolled count in courses collection
+                        await update(courseRef, {
+                            enrolled: updatedEnrolled
+                        });
+                        
+                        // Update UI with new enrolled count
+                        const enrolledCount = document.getElementById('enrolledCount');
+                        if (enrolledCount) {
+                            enrolledCount.textContent = updatedEnrolled;
                         }
-                        courses[courseIndex].enrolled++;
-                        localStorage.setItem('courses', JSON.stringify(courses));
                     }
                     
                     // Show success message and update button
                     alert('Successfully enrolled in the course!');
-                    enrollButtons.forEach(btn => {
-                        btn.textContent = 'Go to Course';
-                        btn.classList.remove('btn-primary');
-                        btn.classList.add('btn-success');
-                        btn.onclick = function() {
+                    updateEnrollButtons();
+                    return true;
+                    
+                } catch (error) {
+                    console.error('Error enrolling in course:', error);
+                    alert('Failed to enroll in the course. Please try again.');
+                    return false;
+                }
+            }
+            
+            // Function to update enroll buttons to show enrolled state
+            function updateEnrollButtons() {
+                const enrollButtons = document.querySelectorAll('.enroll-btn, .start-learning-btn, #enrollBtn, #enrollBtnSidebar');
+                enrollButtons.forEach(button => {
+                    // Update button text
+                    if (button.querySelector('span')) {
+                        button.querySelector('span').textContent = 'Go to Course';
+                    } else {
+                        button.textContent = 'Go to Course';
+                    }
+                    
+                    // Update button classes
+                    button.classList.remove('btn-primary', 'btn-enroll');
+                    button.classList.add('btn-success');
+                    
+                    // Update button link
+                    button.onclick = function(e) {
+                        e.preventDefault();
+                        window.location.href = `course-player.html?courseId=${courseId}`;
+                    };
+                    
+                    // If it's a link inside the button, update that too
+                    const link = button.querySelector('a');
+                    if (link) {
+                        link.textContent = 'Go to Course';
+                        link.classList.remove('btn-primary');
+                        link.classList.add('btn-success');
+                        link.href = `course-player.html?courseId=${courseId}`;
+                        link.onclick = function(e) {
+                            e.preventDefault();
                             window.location.href = `course-player.html?courseId=${courseId}`;
                         };
-                    });
+                    }
+                });
+            }
+            
+            // Handle enrollment button clicks
+            const enrollButtons = document.querySelectorAll('.enroll-btn, .start-learning-btn, #enrollBtn, #enrollBtnSidebar');
+            enrollButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    enrollInCourse();
                 });
             });
+            
+            // Function to check if user is enrolled
+            async function checkEnrollmentStatus() {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                if (!currentUser) return false;
+                
+                try {
+                    const enrollmentRef = ref(database, `users/${currentUser.uid || currentUser.id}/enrollments/${courseId}`);
+                    const snapshot = await get(enrollmentRef);
+                    
+                    if (snapshot.exists()) {
+                        updateEnrollButtons();
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Error checking enrollment:', error);
+                    return false;
+                }
+            }
+            
+            // Check for pending enrollment after login
+            const pendingEnrollment = sessionStorage.getItem('pendingEnrollment');
+            if (pendingEnrollment && pendingEnrollment === courseId) {
+                // Clear the pending enrollment
+                sessionStorage.removeItem('pendingEnrollment');
+                // Try to enroll again
+                if (enrollInCourse()) {
+                    updateEnrollButtons();
+                }
+            } else {
+                // Check enrollment status on page load
+                checkEnrollmentStatus();
+            }
             
             // Check if user is already enrolled and update UI
             function checkEnrollmentStatus() {
@@ -800,18 +874,11 @@
                 const isEnrolled = userCourses.some(enrollment => enrollment.courseId == courseId);
                 
                 if (isEnrolled) {
-                    enrollButtons.forEach(btn => {
-                        btn.textContent = 'Go to Course';
-                        btn.classList.remove('btn-primary');
-                        btn.classList.add('btn-success');
-                        btn.onclick = function() {
-                            window.location.href = `course-player.html?courseId=${courseId}`;
-                        };
-                    });
+                    updateEnrollButtons();
                 }
             }
             
-            // Initial check
+            // Check enrollment status on page load
             checkEnrollmentStatus();
             
             // Toggle module content
