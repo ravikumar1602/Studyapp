@@ -10,10 +10,23 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 
-// Get a reference to the database service
+// Initialize Firebase services
 const database = firebase.database();
+const firestore = firebase.firestore();
+const auth = firebase.auth();
+const storage = firebase.storage();
 
-// Export the database reference
-export { database };
+// Enable offline persistence
+firebase.firestore().enablePersistence()
+    .catch((err) => {
+        if (err.code === 'failed-precondition') {
+            console.warn('Offline persistence can only be enabled in one tab at a time.');
+        } else if (err.code === 'unimplemented') {
+            console.warn('The current browser does not support offline persistence.');
+        }
+    });
+
+// Export the Firebase services
+export { database, firestore, auth, storage };
