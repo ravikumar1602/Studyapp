@@ -72,6 +72,13 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // For Google sign-up, the user is already created
                 userCredential = userData;
+                
+                // Set display name for Google sign-up
+                if (userData.displayName) {
+                    const nameParts = userData.displayName.split(' ');
+                    userData.firstName = nameParts[0] || '';
+                    userData.lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+                }
             }
             
             // Prepare user data for Firestore
@@ -97,13 +104,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Save user data to Firestore
             await setDoc(doc(db, 'users', userCredential.user.uid), userProfile);
             
-            // Show success message and redirect
-            showMessage('Registration successful! Your account is pending admin approval.', 'success');
+            // Store user email in session storage
+            sessionStorage.setItem('pendingApprovalEmail', userData.email);
             
-            // Redirect to login after a short delay
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
+            // Redirect to pending approval page
+            window.location.href = 'pending-approval.html';
             
         } catch (error) {
             console.error('Registration error:', error);
