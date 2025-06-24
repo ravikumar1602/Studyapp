@@ -1,6 +1,12 @@
 // Import Firebase database
 import { database } from './firebase-config.js';
 
+// Security settings
+let securitySettings = {
+    disableRightClick: false,
+    disableDevTools: false
+};
+
 document.addEventListener('DOMContentLoaded', async function() {
     // Course Management Variables
     let courses = [];
@@ -64,6 +70,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Load section-specific data
         if (sectionId === 'courses') {
             renderCoursesTable();
+        } else if (sectionId === 'videos') {
+            // Initialize videos table when videos section is shown
+            if (window.loadAllVideos && typeof window.loadAllVideos === 'function') {
+                window.loadAllVideos();
+            }
         }
     }
     
@@ -293,7 +304,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <td data-label="Instructor">${course.instructor}</td>
                 <td data-label="Duration">${course.duration} weeks</td>
                 <td data-label="Price">₹${course.price.toLocaleString()}</td>
-                <td data-label="Students">${course.students || 0}</td>
+                <td data-label="Students">${course.enrollmentCount || 0}</td>
                 <td data-label="Status">
                     <span class="status-badge status-${course.status}">${course.status}</span>
                 </td>
@@ -351,22 +362,51 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     // Load courses from Firebase
-    function loadCourses() {
-        coursesRef.on('value', (snapshot) => {
-            courses = [];
-            snapshot.forEach((childSnapshot) => {
-                const course = childSnapshot.val();
-                courses.push(course);
+    async function loadCourses() {
+        try {
+            // First, get all users to count enrollments
+            const usersSnapshot = await database.ref('users').once('value');
+            const users = usersSnapshot.val() || {};
+            
+            // Create a map to count enrollments per course
+            const courseEnrollments = {};
+            
+            // Count enrollments across all users
+            Object.values(users).forEach(user => {
+                if (user.enrolledCourses) {
+                    Object.keys(user.enrolledCourses).forEach(courseId => {
+                        if (!courseEnrollments[courseId]) {
+                            courseEnrollments[courseId] = 0;
+                        }
+                        courseEnrollments[courseId]++;
+                    });
+                }
             });
-            renderCoursesTable();
-        }, (error) => {
-            console.error('Error loading courses:', error);
-            showToast('Error', 'Failed to load courses', 'error');
-        });
+            
+            // Now load courses and add enrollment counts
+            coursesRef.on('value', (snapshot) => {
+                courses = [];
+                snapshot.forEach((childSnapshot) => {
+                    const course = childSnapshot.val();
+                    // Add enrollment count to course data
+                    course.enrollmentCount = courseEnrollments[course.id] || 0;
+                    courses.push(course);
+                });
+                renderCoursesTable();
+            }, (error) => {
+                console.error('Error loading courses:', error);
+                showToast('Error', 'Failed to load courses', 'error');
+            });
+            
+        } catch (error) {
+            console.error('Error loading enrollment data:', error);
+            showToast('Error', 'Failed to load enrollment data', 'error');
+        }
     }
     
     // Initialize data
     loadCourses();
+    loadSecuritySettings();
     
     // Course data will be loaded from Firebase
     // Mobile menu toggle
@@ -579,7 +619,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     };
     
-    // Set initial styles for animation
+    // Set initial styles for animation and apply security settings
     document.querySelectorAll('.stat-card, .card, .feature-card').forEach(element => {
         element.style.opacity = '0';
         element.style.transform = 'translateY(20px)';

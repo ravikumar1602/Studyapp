@@ -72,6 +72,9 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Top Navigation -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
             <header class="top-nav">
                 <div class="search-bar">
                     <i class="fas fa-search"></i>
@@ -82,18 +85,35 @@
                         <i class="far fa-bell"></i>
                         <span class="badge">3</span>
                     </div>
-                    <div class="user-profile">
-                        <img src="https://via.placeholder.com/40" alt="Admin">
-                        <span>Admin User</span>
-                        <i class="fas fa-chevron-down"></i>
+                    <button class="user-profile-toggle" id="userProfileToggle" aria-label="User profile">
+                        <div class="profile-avatar">
+                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=4a6cf7&color=fff" alt="Admin" class="user-avatar">
+                        </div>
+                        <span class="user-name">Admin</span>
+                        <i class="fas fa-chevron-down dropdown-arrow"></i>
+                        <div class="mobile-avatar">
+                            <img src="https://ui-avatars.com/api/?name=AU&background=4a6cf7&color=fff&length=2" alt="AU" class="user-avatar">
+                        </div>
+                    </button>
+                    <div class="user-profile-dropdown" id="userProfileDropdown">
+                        <div class="user-info">
+                            <img src="https://via.placeholder.com/40" alt="Admin">
+                            <div>
+                                <div class="user-name">Admin User</div>
+                                <div class="user-email">admin@example.com</div>
+                            </div>
+                        </div>
+                        <ul class="dropdown-menu">
+                            <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+                            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                            <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
                     </div>
                 </div>
             </header>
 
             <!-- Dashboard Content -->
             <div class="dashboard-content" id="dashboard-content">
-                <h1>Dashboard Overview</h1>
-                
                 <!-- Videos Section -->
                 <div id="videos-section" class="section-content d-none">
                     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -142,7 +162,10 @@
                     
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h3>Pending Approvals</h3>
+                            <div class="d-flex align-items-center">
+                                <div class="pending-count-badge me-3" id="pendingUsersCount">0</div>
+                                <h3 class="mb-0">Pending Approvals</h3>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -167,7 +190,10 @@
                     
                     <div class="card">
                         <div class="card-header">
-                            <h3>All Users</h3>
+                            <div class="d-flex align-items-center">
+                                <div class="total-count-badge me-3" id="totalUsersCount">0</div>
+                                <h3 class="mb-0">All Users</h3>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -245,6 +271,7 @@
                 
                 <!-- Dashboard Overview (default view) -->
                 <div id="dashboard-overview" class="section-content">
+                    <h1>Dashboard Overview</h1>
                     <!-- Stats Cards -->
                     <div class="stats-grid">
                         <div class="stat-card">
@@ -365,7 +392,7 @@
                                     <i class="fas fa-circle" style="color: #2196f3;"></i>
                                     <span>New Users (7d)</span>
                                 </div>
-                                <span class="stat-value">124</span>
+                                <span class="stat-value" id="newUsers7dCount">0</span>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-label">
@@ -593,8 +620,8 @@
     
     <!-- Custom JS -->
     <script type="module" src="admin-users.js"></script>
+    <script src="admin-profile.js"></script>
     <script type="module" src="admin-script.js"></script>
-    <script src="admin-users.js"></script>
-    <script src="admin-videos.js"></script>
+    <script type="module" src="admin-videos.js"></script>
 </body>
 </html>

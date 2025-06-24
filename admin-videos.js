@@ -403,3 +403,4 @@ function deleteVideo(videoId, courseId) {
 window.playVideo = playVideo;
 window.editVideo = editVideo;
 window.deleteVideo = deleteVideo;
+window.loadAllVideos = loadAllVideos;

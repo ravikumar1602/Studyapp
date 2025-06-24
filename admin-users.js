@@ -200,9 +200,25 @@ document.addEventListener('DOMContentLoaded', function() {
             const pendingUsers = users.filter(user => !user.isApproved);
             const approvedUsers = users.filter(user => user.isApproved);
             
+            // Calculate users registered in the last 7 days
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            
+            const recentUsers = users.filter(user => {
+                if (!user.createdAt) return false;
+                const userDate = user.createdAt.toDate ? user.createdAt.toDate() : new Date(user.createdAt);
+                return userDate >= sevenDaysAgo;
+            });
+            
             // Update counts
             if (pendingUsersCount) pendingUsersCount.textContent = pendingUsers.length;
             if (totalUsersCount) totalUsersCount.textContent = users.length;
+            
+            // Update 7-day new users count
+            const newUsers7dCount = document.getElementById('newUsers7dCount');
+            if (newUsers7dCount) {
+                newUsers7dCount.textContent = recentUsers.length;
+            }
             
             renderPendingUsers(pendingUsers);
             renderAllUsers(users);
@@ -212,11 +228,82 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Format date with relative time
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        
+        try {
+            let date;
+            
+            // Handle Firestore timestamp
+            if (dateString.toDate) {
+                date = dateString.toDate();
+            } else {
+                // Handle ISO string or timestamp
+                date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'Invalid Date';
+            }
+            
+            // Get today's date at 00:00:00
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Get input date at 00:00:00 for comparison
+            const inputDate = new Date(date);
+            inputDate.setHours(0, 0, 0, 0);
+            
+            // Calculate difference in days
+            const diffTime = today - inputDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Format time part
+            const timeStr = date.toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            }).toLowerCase();
+            
+            // Return relative date with time
+            if (diffDays === 0) {
+                return `Today, ${timeStr}`;
+            } else if (diffDays === 1) {
+                return `Yesterday, ${timeStr}`;
+            } else if (diffDays < 7) {
+                // For dates within the same week, show day name
+                return date.toLocaleDateString('en-IN', {
+                    weekday: 'long',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            } else {
+                // For older dates, show full date
+                return date.toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return 'Invalid Date';
+        }
+    }
+
     // Render pending users table
     function renderPendingUsers(users) {
         if (!pendingUsersTableBody) return;
         
         pendingUsersTableBody.innerHTML = '';
+        
+        // Update pending users count badge
+        const pendingUsersCount = document.getElementById('pendingUsersCount');
+        if (pendingUsersCount) {
+            pendingUsersCount.textContent = users.length;
+        }
         
         if (users.length === 0) {
             pendingUsersTableBody.innerHTML = `
@@ -235,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${user.firstName} ${user.lastName}</td>
                 <td>${user.email}</td>
                 <td>${user.phone || 'N/A'}</td>
-                <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                <td>${formatDate(user.createdAt)}</td>
                 <td>
                     <button class="btn btn-sm btn-primary view-user-details" data-user-id="${user.id}">
                         <i class="fas fa-eye"></i> View
@@ -253,31 +340,41 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Render all users table
+    // Render all users table - showing only approved users
     function renderAllUsers(users) {
         if (!allUsersTableBody) return;
         
         allUsersTableBody.innerHTML = '';
         
-        if (users.length === 0) {
+        // Filter only approved users
+        const approvedUsers = users.filter(user => user.isApproved === true);
+        const approvedUsersCount = users.filter(user => user.isApproved === true).length;
+        
+        // Update approved users count badge
+        const totalUsersCount = document.getElementById('totalUsersCount');
+        if (totalUsersCount) {
+            totalUsersCount.textContent = approvedUsersCount;
+        }
+        
+        if (approvedUsers.length === 0) {
             allUsersTableBody.innerHTML = `
                 <tr>
                     <td colspan="6" class="text-center py-4">
-                        <div class="text-muted">No users found</div>
+                        <div class="text-muted">No approved users found</div>
                     </td>
                 </tr>`;
             return;
         }
         
-        users.forEach((user, index) => {
+        approvedUsers.forEach((user, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${user.firstName} ${user.lastName}</td>
-                <td>${user.email}</td>
+                <td>${user.firstName || ''} ${user.lastName || ''}</td>
+                <td>${user.email || 'N/A'}</td>
                 <td>
-                    <span class="badge ${user.isApproved ? 'bg-success' : 'bg-warning'}">
-                        ${user.isApproved ? 'Approved' : 'Pending'}
+                    <span class="badge bg-success">
+                        Approved
                     </span>
                 </td>
                 <td>${user.role || 'student'}</td>
