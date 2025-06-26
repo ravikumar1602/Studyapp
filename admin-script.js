@@ -405,7 +405,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     // Initialize data
-    loadCourses();
+    loadCourses().then(() => {
+        // After courses are loaded, ensure events are set up
+        setupCoursesTableEvents();
+    });
     loadSecuritySettings();
     
     // Course data will be loaded from Firebase
@@ -514,15 +517,26 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initial active state update
     updateActiveNav();
     
-    // Handle action buttons with event delegation
-    document.addEventListener('click', function(e) {
+    // Handle action buttons with event delegation for courses table
+    function setupCoursesTableEvents() {
+        const coursesTable = document.getElementById('coursesTable');
+        if (coursesTable) {
+            // Remove any existing event listeners to prevent duplicates
+            coursesTable.removeEventListener('click', handleTableClick);
+            // Add new event listener
+            coursesTable.addEventListener('click', handleTableClick);
+        }
+    }
+    
+    function handleTableClick(e) {
         const button = e.target.closest('button[data-action]');
         if (!button) return;
         
         const action = button.getAttribute('data-action');
         const row = button.closest('tr');
-        const courseId = row.dataset.courseId;
+        if (!row || !row.dataset.courseId) return;
         
+        const courseId = row.dataset.courseId;
         e.stopPropagation();
         
         switch (action) {
@@ -536,7 +550,18 @@ document.addEventListener('DOMContentLoaded', async function() {
                 toggleCourseStatus(courseId);
                 break;
         }
-    });
+    }
+    
+    // Initial setup of event listeners
+    setupCoursesTableEvents();
+    
+    // Wrap the original renderCoursesTable to ensure events are set up after rendering
+    const originalRenderCoursesTable = renderCoursesTable;
+    renderCoursesTable = function() {
+        const result = originalRenderCoursesTable.apply(this, arguments);
+        setupCoursesTableEvents();
+        return result;
+    };
     
     // Handle browser back/forward buttons
     window.addEventListener('popstate', function() {
