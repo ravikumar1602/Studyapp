@@ -1,13 +1,21 @@
 {
   "name": "StudyApp",
   "short_name": "StudyApp",
-  "start_url": "index.html",
-  "scope": "./",
+  "start_url": "/index.html?source=pwa",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4a6cf7",
   "description": "A modern learning platform for students",
   "orientation": "portrait",
+  "prefer_related_applications": false,
+  "categories": ["education", "productivity", "utilities"],
+  "dir": "ltr",
+  "lang": "en-US",
+  "id": "/?source=pwa",
+  "launch_handler": {
+    "client_mode": "auto"
+  },
   "icons": [
     {
       "src": "/icons/icon-192x192.png",

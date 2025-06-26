@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="StudyApp - Your Modern Learning Platform">
+    <meta name="theme-color" content="#4a6cf7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <title>StudyApp - Learn Anytime, Anywhere</title>
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="styles.css">
@@ -26,6 +31,9 @@
                 </ul>
             </nav>
             <div class="auth-buttons">
+                <button id="installButton" class="button secondary" style="display: none; margin-right: 10px;">
+                    <i class="fas fa-download"></i> Install App
+                </button>
                 <a href="login.html" class="button">Login</a>
                 <a href="register.html" class="button secondary">Register</a>
             </div>
@@ -100,6 +108,21 @@
         </div>
     </footer>
     <script src="app.js"></script>
+    
+    <!-- Register Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
