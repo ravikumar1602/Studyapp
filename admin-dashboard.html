@@ -275,6 +275,31 @@
                     </div>
                 </div>
                 
+                <!-- Settings Section -->
+                <div id="settings-section" class="section-content d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Site Settings</h2>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Development Notification</h5>
+                            <p class="card-text text-muted">Toggle the development notification that appears for users.</p>
+                            
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" id="toggleDevNotification" style="width: 3em; height: 1.5em;">
+                                <label class="form-check-label ms-2" for="toggleDevNotification" id="devNotificationStatus">Loading...</label>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button class="btn btn-primary" id="saveSettingsBtn">
+                                    <i class="fas fa-save me-2"></i>Save Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Dashboard Overview (default view) -->
                 <div id="dashboard-overview" class="section-content">
                     <h1>Dashboard Overview</h1>
@@ -629,7 +654,37 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     
     <!-- Custom JS -->
-    <script src="firebase-config.js"></script>
+    <script src="admin-script.js"></script>
+    <script>
+        // Development notification toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleSwitch = document.getElementById('toggleDevNotification');
+            const statusLabel = document.getElementById('devNotificationStatus');
+            const saveBtn = document.getElementById('saveSettingsBtn');
+            
+            // Load current setting from localStorage
+            const isNotificationEnabled = localStorage.getItem('devNotificationEnabled') !== 'false';
+            toggleSwitch.checked = isNotificationEnabled;
+            statusLabel.textContent = isNotificationEnabled ? 'Enabled' : 'Disabled';
+            
+            // Update status label when toggle changes
+            toggleSwitch.addEventListener('change', function() {
+                statusLabel.textContent = this.checked ? 'Enabled' : 'Disabled';
+            });
+            
+            // Save settings
+            saveBtn.addEventListener('click', function() {
+                const isEnabled = toggleSwitch.checked;
+                localStorage.setItem('devNotificationEnabled', isEnabled);
+                
+                // Update the setting in Firebase or your backend if needed
+                // For now, we'll just update the local storage
+                
+                // Show success message
+                alert('Settings saved successfully!');
+            });
+        });
+    </script>
     <script type="module" src="admin-videos.js"></script>
     <script src="admin-profile.js"></script>
     <script type="module" src="admin-users.js"></script>

@@ -13,6 +13,85 @@
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        #dev-notification {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #4a6cf7, #6a11cb);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 9999;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            border-left: 5px solid #ffeb3b;
+        }
+        #dev-notification.show {
+            display: block;
+            animation: slideIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #dev-notification-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        #dev-notification-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        #dev-notification h3 {
+            margin: 0 0 15px 0;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #dev-notification p {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+        }
+        #dev-notification a {
+            color: #ffeb3b;
+            text-decoration: none;
+            font-weight: 600;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        #dev-notification a:hover {
+            background: rgba(255,255,255,0.2);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        #dev-notification a i {
+            font-size: 14px;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(50px) scale(0.95); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+    </style>
 </head>
 <body>
     <!-- Header with Navigation -->
@@ -130,5 +209,55 @@
     
     <!-- Security Script -->
     <script src="security.js"></script>
+    <!-- Development Notification -->
+    <div id="dev-notification">
+        <button id="dev-notification-close" aria-label="Close">&times;</button>
+        <h3><i class="fas fa-tools"></i> Important Notice</h3>
+        <p>This website is currently under active development. Some features may not work as expected.</p>
+        <p>If you experience any issues or have suggestions, please contact our support team:</p>
+        <p style="margin: 20px 0;">
+            <a href="mailto:support@studyapp.com">
+                <i class="fas fa-envelope"></i> support@studyapp.com
+            </a>
+        </p>
+        <p style="font-size: 14px; opacity: 0.9; margin: 0;">
+            <i class="fas fa-info-circle"></i> This message will be hidden for 7 days after closing.
+        </p>
+    </div>
+
+    <script>
+        // Function to show the notification
+        function showDevNotification() {
+            const notification = document.getElementById('dev-notification');
+            notification.classList.add('show');
+            
+            // Close button functionality
+            document.getElementById('dev-notification-close').addEventListener('click', function() {
+                notification.classList.remove('show');
+                // Remember the user's choice for 7 days
+                localStorage.setItem('devNotificationClosed', 'true');
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + 7);
+                document.cookie = 'devNotificationClosed=true; expires=' + expiryDate.toUTCString() + '; path=/';
+            });
+        }
+
+        // Check if notification should be shown
+        function checkAndShowNotification() {
+            // Check if notification is enabled in admin settings
+            const isNotificationEnabled = localStorage.getItem('devNotificationEnabled') !== 'false';
+            const wasNotificationClosed = localStorage.getItem('devNotificationClosed');
+            
+            // Show notification if:
+            // 1. It's enabled in admin settings AND
+            // 2. It wasn't closed by the user (or the 7-day period has passed)
+            if (isNotificationEnabled && !wasNotificationClosed) {
+                setTimeout(showDevNotification, 1000);
+            }
+        }
+
+        // Run the check when the page loads
+        window.addEventListener('load', checkAndShowNotification);
+    </script>
 </body>
 </html>

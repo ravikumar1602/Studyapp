@@ -1014,32 +1014,102 @@
         }
         
         function playVideo(url, title) {
-            // Check if it's a YouTube URL
+            // Ensure URL is a string
+            if (!url) {
+                console.error('No video URL provided');
+                alert('Video URL is missing');
+                return;
+            }
+            
+            console.log('Original URL:', url);
+            
+            // Check if it's a YouTube URL (regular or live)
             if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                // Extract video ID from URL
-                let videoId = '';
-                if (url.includes('youtube.com/watch')) {
-                    videoId = new URL(url).searchParams.get('v');
-                } else if (url.includes('youtu.be/')) {
-                    videoId = url.split('youtu.be/')[1].split('?')[0];
-                }
-                
-                if (videoId) {
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
-                    showVideoModal(embedUrl, title);
+                try {
+                    let videoId = '';
+                    
+                    // Extract video ID from different URL formats
+                    if (url.includes('youtube.com/watch')) {
+                        const urlObj = new URL(url);
+                        videoId = urlObj.searchParams.get('v');
+                    } else if (url.includes('youtu.be/')) {
+                        videoId = url.split('youtu.be/')[1].split(/[?&#]/)[0];
+                    } else if (url.includes('youtube.com/embed/')) {
+                        videoId = url.split('youtube.com/embed/')[1].split(/[?&#]/)[0];
+                    } else if (url.includes('youtube.com/live/')) {
+                        videoId = url.split('youtube.com/live/')[1].split(/[?&#]/)[0];
+                    }
+                    
+                    console.log('Extracted Video ID:', videoId);
+                    
+                    if (videoId) {
+                        // Create a simple embed URL with all parameters in the query string
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&playsinline=1&mute=0&controls=0&disablekb=1`;
+                        console.log('Final YouTube URL:', embedUrl);
+                        showVideoModal(embedUrl, title);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error processing YouTube URL:', error);
+                    alert('Error loading YouTube video. Please check the URL.');
                     return;
                 }
             }
             
-            // For Google Drive or other direct video links
+            // Handle Google Drive videos
+            if (url.includes('drive.google.com')) {
+                try {
+                    // Convert Google Drive URL to embeddable format
+                    if (url.includes('/file/d/')) {
+                        // For direct file links
+                        const fileId = url.split('/file/d/')[1].split('/')[0];
+                        url = `https://drive.google.com/file/d/${fileId}/preview`;
+                    } else if (url.includes('id=')) {
+                        // For links with ID parameter
+                        const fileId = new URL(url).searchParams.get('id');
+                        if (fileId) {
+                            url = `https://drive.google.com/file/d/${fileId}/preview`;
+                        }
+                    }
+                    console.log('Google Drive URL:', url);
+                } catch (error) {
+                    console.error('Error processing Google Drive URL:', error);
+                }
+            }
+            
+            // For non-YouTube videos, ensure the URL has a protocol
+            if (!url.startsWith('http')) {
+                url = 'https:' + url;
+            }
+            
+            // For other video sources
             showVideoModal(url, title);
         }
         
         function showVideoModal(videoUrl, title) {
+            console.log('Showing video modal with URL:', videoUrl);
+            
+            // Ensure the URL has a protocol
+            if (!videoUrl.startsWith('http')) {
+                videoUrl = 'https:' + videoUrl;
+            }
+            
+            // For YouTube embeds, ensure proper URL format and parameters
+            if (videoUrl.includes('youtube.com/embed/')) {
+                try {
+                    // Create a clean URL with only the video ID and essential parameters
+                    const videoId = videoUrl.split('youtube.com/embed/')[1].split(/[?&#]/)[0];
+                    videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&playsinline=1&mute=0`;
+                    console.log('Cleaned YouTube URL:', videoUrl);
+                } catch (e) {
+                    console.error('Error processing YouTube URL:', e);
+                }
+            }
+            
             // Create modal HTML
             const modalHtml = `
                 <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="videoModalLabel">${title}</h5>
@@ -1047,10 +1117,14 @@
                             </div>
                             <div class="modal-body p-0">
                                 <div class="ratio ratio-16x9">
-                                    <iframe src="${videoUrl}" 
-                                            title="${title}" 
-                                            allowfullscreen
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                    <iframe 
+                                        src="${videoUrl}" 
+                                        title="${title}" 
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen
+                                        style="width: 100%; height: 100%; border: 0; background: #000; pointer-events: none;"
+                                        sandbox="allow-same-origin allow-scripts">
                                     </iframe>
                                 </div>
                             </div>
