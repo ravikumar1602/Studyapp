@@ -284,15 +284,33 @@
                     <div class="card mb-4">
                         <div class="card-body">
                             <h5 class="card-title">Development Notification</h5>
-                            <p class="card-text text-muted">Toggle the development notification that appears for users.</p>
+                            <p class="card-text text-muted">Customize the notification that appears for users.</p>
                             
-                            <div class="form-check form-switch mt-3">
+                            <div class="form-check form-switch mt-3 mb-4">
                                 <input class="form-check-input" type="checkbox" id="toggleDevNotification" style="width: 3em; height: 1.5em;">
                                 <label class="form-check-label ms-2" for="toggleDevNotification" id="devNotificationStatus">Loading...</label>
                             </div>
                             
-                            <div class="mt-3">
-                                <button class="btn btn-primary" id="saveSettingsBtn">
+                            <div class="mb-3">
+                                <label for="notificationTitle" class="form-label">Notification Title</label>
+                                <input type="text" class="form-control" id="notificationTitle" placeholder="Enter notification title">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="notificationMessage" class="form-label">Notification Message</label>
+                                <textarea class="form-control" id="notificationMessage" rows="3" placeholder="Enter your message here..."></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="notificationEmail" class="form-label">Contact Email</label>
+                                <input type="email" class="form-control" id="notificationEmail" placeholder="support@studyapp.com">
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button class="btn btn-primary me-2" id="previewNotificationBtn">
+                                    <i class="fas fa-eye me-2"></i>Preview
+                                </button>
+                                <button class="btn btn-success" id="saveSettingsBtn">
                                     <i class="fas fa-save me-2"></i>Save Settings
                                 </button>
                             </div>
@@ -656,38 +674,111 @@
     <!-- Custom JS -->
     <script src="admin-script.js"></script>
     <script>
-        // Development notification toggle functionality
+        // Development notification settings functionality
         document.addEventListener('DOMContentLoaded', function() {
             const toggleSwitch = document.getElementById('toggleDevNotification');
             const statusLabel = document.getElementById('devNotificationStatus');
             const saveBtn = document.getElementById('saveSettingsBtn');
+            const previewBtn = document.getElementById('previewNotificationBtn');
             
-            // Load current setting from localStorage
-            const isNotificationEnabled = localStorage.getItem('devNotificationEnabled') !== 'false';
-            toggleSwitch.checked = isNotificationEnabled;
-            statusLabel.textContent = isNotificationEnabled ? 'Enabled' : 'Disabled';
+            // Load current settings
+            const settings = {
+                enabled: localStorage.getItem('devNotificationEnabled') !== 'false',
+                title: localStorage.getItem('notificationTitle') || 'Important Notice',
+                message: localStorage.getItem('notificationMessage') || 'This website is currently under active development. Some features may not work as expected.',
+                email: localStorage.getItem('notificationEmail') || 'support@studyapp.com'
+            };
+            
+            // Initialize form fields
+            toggleSwitch.checked = settings.enabled;
+            statusLabel.textContent = settings.enabled ? 'Enabled' : 'Disabled';
+            document.getElementById('notificationTitle').value = settings.title;
+            document.getElementById('notificationMessage').value = settings.message;
+            document.getElementById('notificationEmail').value = settings.email;
             
             // Update status label when toggle changes
             toggleSwitch.addEventListener('change', function() {
                 statusLabel.textContent = this.checked ? 'Enabled' : 'Disabled';
             });
             
+            // Preview functionality
+            previewBtn.addEventListener('click', function() {
+                const previewSettings = getCurrentSettings();
+                showPreview(previewSettings);
+            });
+            
             // Save settings
             saveBtn.addEventListener('click', function() {
-                const isEnabled = toggleSwitch.checked;
-                localStorage.setItem('devNotificationEnabled', isEnabled);
+                const newSettings = getCurrentSettings();
                 
-                // Update the setting in Firebase or your backend if needed
-                // For now, we'll just update the local storage
+                // Save to localStorage
+                localStorage.setItem('devNotificationEnabled', newSettings.enabled);
+                localStorage.setItem('notificationTitle', newSettings.title);
+                localStorage.setItem('notificationMessage', newSettings.message);
+                localStorage.setItem('notificationEmail', newSettings.email);
                 
                 // Show success message
-                alert('Settings saved successfully!');
+                alert('Notification settings saved successfully!');
             });
+            
+            function getCurrentSettings() {
+                return {
+                    enabled: toggleSwitch.checked,
+                    title: document.getElementById('notificationTitle').value.trim(),
+                    message: document.getElementById('notificationMessage').value.trim(),
+                    email: document.getElementById('notificationEmail').value.trim()
+                };
+            }
+            
+            function showPreview(settings) {
+                // Create preview modal
+                const previewHtml = `
+                    <div class="modal fade" id="notificationPreviewModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Preview Notification</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="dev-notification-preview" class="p-4 rounded" style="background: linear-gradient(135deg, #4a6cf7, #6a11cb); color: white;">
+                                        <h5><i class="fas fa-tools me-2"></i>${settings.title || 'Important Notice'}</h5>
+                                        <p class="mt-3">${settings.message || 'This website is currently under active development. Some features may not work as expected.'}</p>
+                                        <p class="mb-0">
+                                            <a href="mailto:${settings.email || 'support@studyapp.com'}" class="text-warning text-decoration-none fw-bold">
+                                                <i class="fas fa-envelope me-2"></i>${settings.email || 'support@studyapp.com'}
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Remove existing preview modal if any
+                const existingPreview = document.getElementById('notificationPreviewModal');
+                if (existingPreview) {
+                    existingPreview.remove();
+                }
+                
+                // Add preview modal to DOM and show it
+                document.body.insertAdjacentHTML('beforeend', previewHtml);
+                const previewModal = new bootstrap.Modal(document.getElementById('notificationPreviewModal'));
+                previewModal.show();
+            }
         });
     </script>
     <script type="module" src="admin-videos.js"></script>
     <script src="admin-profile.js"></script>
     <script type="module" src="admin-users.js"></script>
     <script type="module" src="admin-script.js"></script>
+    <div class="mb-3">
+        <label for="notificationMessage" class="form-label">Important Notice Message</label>
+        <textarea class="form-control" id="notificationMessage" rows="3"></textarea>
+    </div>
 </body>
 </html>

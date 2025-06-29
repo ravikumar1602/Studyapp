@@ -91,6 +91,28 @@
             from { transform: translateY(50px) scale(0.95); opacity: 0; }
             to { transform: translateY(0) scale(1); opacity: 1; }
         }
+        
+        /* Visitor Count Style */
+        .visitor-count {
+            color: #4a6cf7;
+            font-weight: 700;
+        }
+        
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background: #f0f4ff;
+            color: #4a6cf7;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        
+        .tag i {
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -143,6 +165,15 @@
                     <i class="fas fa-bolt"></i>
                     <h3>Fast Loading</h3>
                     <p>Quick access to your materials</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Our Community</h3>
+                    <p>Join <span id="visitorCount" class="visitor-count">0</span>+ students</p>
+                    <div class="tag">
+                        <i class="fas fa-user-friends"></i>
+                        <span>StudyApp Family</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -210,14 +241,14 @@
     <!-- Security Script -->
     <script src="security.js"></script>
     <!-- Development Notification -->
-    <div id="dev-notification">
+    <div id="dev-notification" class="d-none">
         <button id="dev-notification-close" aria-label="Close">&times;</button>
-        <h3><i class="fas fa-tools"></i> Important Notice</h3>
-        <p>This website is currently under active development. Some features may not work as expected.</p>
-        <p>If you experience any issues or have suggestions, please contact our support team:</p>
+        <h3 id="notification-title"></h3>
+        <p id="notification-message"></p>
         <p style="margin: 20px 0;">
-            <a href="mailto:support@studyapp.com">
-                <i class="fas fa-envelope"></i> support@studyapp.com
+            <a id="notification-email" href="#" class="notification-email">
+                <i class="fas fa-envelope"></i>
+                <span id="notification-email-text"></span>
             </a>
         </p>
         <p style="font-size: 14px; opacity: 0.9; margin: 0;">
@@ -226,10 +257,63 @@
     </div>
 
     <script>
+        // Function to get or initialize the visitor count
+        function updateVisitorCount() {
+            // Get current count from localStorage or start with a random base number
+            let count = localStorage.getItem('visitorCount');
+            
+            if (!count) {
+                // If no count exists, start with a random number between 500-1000
+                count = Math.floor(Math.random() * 500) + 500;
+            } else {
+                // Convert to number and add a random increment (1-5)
+                count = parseInt(count) + Math.floor(Math.random() * 5) + 1;
+            }
+            
+            // Save the new count
+            localStorage.setItem('visitorCount', count);
+            
+            // Update the display with comma formatting
+            document.getElementById('visitorCount').textContent = count.toLocaleString();
+        }
+        
+        // Update counter when the page loads
+        document.addEventListener('DOMContentLoaded', updateVisitorCount);
+    </script>
+    
+    <script>
+        function initNotification() {
+            const notification = document.getElementById('dev-notification');
+            
+            // Load settings from localStorage with fallback to defaults
+            const settings = {
+                title: localStorage.getItem('notificationTitle') || 'Important Notice',
+                message: localStorage.getItem('notificationMessage') || 'This website is currently under active development. Some features may not work as expected.',
+                email: localStorage.getItem('notificationEmail') || 'support@studyapp.com',
+                enabled: localStorage.getItem('devNotificationEnabled') !== 'false'
+            };
+            
+            // Update notification content
+            document.getElementById('notification-title').innerHTML = 
+                `<i class="fas fa-tools me-2"></i>${settings.title}`;
+            document.getElementById('notification-message').textContent = settings.message;
+            document.getElementById('notification-email').href = `mailto:${settings.email}`;
+            document.getElementById('notification-email-text').textContent = settings.email;
+            
+            // Show the notification container
+            notification.classList.remove('d-none');
+            
+            return settings.enabled;
+        }
+        
         // Function to show the notification
         function showDevNotification() {
             const notification = document.getElementById('dev-notification');
-            notification.classList.add('show');
+            
+            // Add show class with animation
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
             
             // Close button functionality
             document.getElementById('dev-notification-close').addEventListener('click', function() {
@@ -244,20 +328,21 @@
 
         // Check if notification should be shown
         function checkAndShowNotification() {
-            // Check if notification is enabled in admin settings
-            const isNotificationEnabled = localStorage.getItem('devNotificationEnabled') !== 'false';
+            // Initialize notification and get enabled status
+            const isNotificationEnabled = initNotification();
             const wasNotificationClosed = localStorage.getItem('devNotificationClosed');
             
             // Show notification if:
             // 1. It's enabled in admin settings AND
             // 2. It wasn't closed by the user (or the 7-day period has passed)
             if (isNotificationEnabled && !wasNotificationClosed) {
+                // Wait for styles to be applied before showing
                 setTimeout(showDevNotification, 1000);
             }
         }
 
         // Run the check when the page loads
-        window.addEventListener('load', checkAndShowNotification);
+        document.addEventListener('DOMContentLoaded', checkAndShowNotification);
     </script>
 </body>
 </html>
