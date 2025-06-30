@@ -66,6 +66,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="#feedback">
+                            <i class="fas fa-comments"></i>
+                            <span>Feedback</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#settings">
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
@@ -276,6 +282,55 @@
                 </div>
                 
                 <!-- Settings Section -->
+                <!-- Feedback Management Section -->
+                <div id="feedback-section" class="section-content d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Student Feedback</h2>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-filter="pending">
+                                Pending <span class="badge bg-danger ms-1" id="pendingCountBadge">0</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="approved">
+                                Approved <span class="badge bg-success ms-1" id="approvedCountBadge">0</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="rejected">
+                                Rejected <span class="badge bg-secondary ms-1" id="rejectedCountBadge">0</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 50px;">#</th>
+                                            <th>Student</th>
+                                            <th>Course</th>
+                                            <th>Rating</th>
+                                            <th>Feedback</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="feedbackTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <p class="mt-2 mb-0">Loading feedback...</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="settings-section" class="section-content d-none">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2>Site Settings</h2>
@@ -573,6 +628,13 @@
         </main>
     </div>
 
+    <!-- Toast Container for Notifications -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="toastContainer" class="toast-container">
+            <!-- Toasts will be inserted here dynamically -->
+        </div>
+    </div>
+
     <!-- User Approval Modal -->
     <div class="modal fade" id="userApprovalModal" tabindex="-1" aria-labelledby="userApprovalModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -775,6 +837,7 @@
     <script type="module" src="admin-videos.js"></script>
     <script src="admin-profile.js"></script>
     <script type="module" src="admin-users.js"></script>
+    <script type="module" src="admin-feedback.js"></script>
     <script type="module" src="admin-script.js"></script>
     <div class="mb-3">
         <label for="notificationMessage" class="form-label">Important Notice Message</label>
